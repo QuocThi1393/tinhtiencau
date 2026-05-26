@@ -180,7 +180,7 @@
         <label>Số lượng Nam:</label>
         <div class="input-wrapper">
             <span class="icon">👦</span>
-            <input type="number" id="txtSoNam" value="0" onclick="this.select();">
+            <input type="number" id="txtSoLuongNam" value="0" onclick="this.select();">
         </div>
     </div>
 
@@ -188,7 +188,7 @@
         <label>Số lượng Nữ:</label>
         <div class="input-wrapper">
             <span class="icon">👧</span>
-            <input type="number" id="txtSoNu" value="0" onclick="this.select();">
+            <input type="number" id="txtSoLuongNu" value="0" onclick="this.select();">
         </div>
     </div>
 
@@ -196,7 +196,7 @@
         <label>Số lượng Nửa buổi (Về sớm/Tới trễ):</label>
         <div class="input-wrapper">
             <span class="icon">🕒</span>
-            <input type="number" id="txtSoNuaBuoi" value="0" onclick="this.select();">
+            <input type="number" id="txtVeSomToiTre" value="0" onclick="this.select();">
         </div>
     </div>
 
@@ -214,4 +214,34 @@
 function tinhTien() {
     let tienSan = parseFloat(document.getElementById('txtTienSan').value) || 0;
     let tienCau = parseFloat(document.getElementById('txtTienCau').value) || 0;
-    let tienCauLe = parseFloat(document.getElementById('txtTienCau
+    let tienCauLe = parseFloat(document.getElementById('txtTienCauLe').value) || 0;
+    
+    let soNam = parseFloat(document.getElementById('txtSoLuongNam').value) || 0;
+    let soNu = parseFloat(document.getElementById('txtSoLuongNu').value) || 0;
+    let soNuaBuoi = parseFloat(document.getElementById('txtVeSomToiTre').value) || 0;
+
+    let mauSoSan = soNam + soNu + (0.5 * soNuaBuoi);
+    let mauSoCau = soNam + (0.5 * (soNu + soNuaBuoi));
+
+    if (mauSoSan === 0 || mauSoCau === 0) {
+        alert("Vui lòng nhập số lượng người chơi hợp lệ bạn nhé! 🥰");
+        return;
+    }
+
+    let tienSanNam = tienSan / mauSoSan;
+    let tongTienCau = tienCau + tienCauLe;
+    let tienCauNam = tongTienCau / mauSoCau;
+    let tienCauNu = tienCauNam * 0.67; 
+
+    let tongNam = tienSanNam + tienCauNam;
+    let tongNu = tienSanNam + tienCauNu;
+    let tongNuaBuoi = tongNam * 0.5;
+
+    document.getElementById('resNam').innerText = Math.round(tongNam).toLocaleString('vi-VN') + " đ / người";
+    document.getElementById('resNu').innerText = Math.round(tongNu).toLocaleString('vi-VN') + " đ / người";
+    document.getElementById('resNuaBuoi').innerText = Math.round(tongNuaBuoi).toLocaleString('vi-VN') + " đ / người";
+}
+</script>
+
+</body>
+</html>
