@@ -20,7 +20,7 @@
         }
         .container { 
             width: 100%;
-            max-width: 500px; 
+            max-width: 600px; 
             background: #ffffff; 
             padding: 15px; 
             border-radius: 20px; 
@@ -33,9 +33,9 @@
         .header-section {
             position: relative;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border-bottom: 2px dashed #a5d6a7;
-            padding-bottom: 35px; /* Tăng khoảng cách để chứa chữ nhỏ phía dưới */
+            padding-bottom: 32px;
         }
         .app-title {
             color: #2e7d32;
@@ -53,14 +53,140 @@
             right: 5px;
             bottom: 4px;
             text-align: right;
-            font-size: 9px; /* Thu nhỏ chữ hơn nữa theo yêu cầu */
-            color: #8fa38b; /* Đổi màu xám nhẹ tinh tế hơn */
+            font-size: 9px; 
+            color: #8fa38b; 
             line-height: 1.3;
             font-family: Arial, sans-serif;
-            font-weight: normal;
         }
 
-        /* Khung 2 cột song song cố định */
+        /* Quản lý ẩn hiện màn hình */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+
+        /* Giao diện Màn hình 1: Danh sách thành viên */
+        .member-grid {
+            display: flex;
+            gap: 15px;
+        }
+        .member-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .member-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 6px;
+            background: #fafafa;
+            padding: 3px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+        .member-no {
+            font-size: 11px;
+            font-weight: bold;
+            color: #888;
+            width: 16px;
+            text-align: center;
+        }
+        .member-name {
+            flex: 1;
+            min-width: 0;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        .member-name:focus {
+            border-color: #4caf50;
+            outline: none;
+            background: #fff;
+        }
+        
+        /* Custom Radio gộp nhóm lựa chọn thành viên */
+        .type-options {
+            display: flex;
+            gap: 2px;
+        }
+        .type-options label {
+            cursor: pointer;
+            padding: 4px 5px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            font-size: 11px;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .type-options input[type="radio"] {
+            display: none;
+        }
+        .type-options input[type="radio"]:checked + label.lbl-nam { background: #90caf9; font-weight: bold; }
+        .type-options input[type="radio"]:checked + label.lbl-nu { background: #f48fb1; font-weight: bold; }
+        .type-options input[type="radio"]:checked + label.lbl-nb { background: #ffe082; font-weight: bold; }
+
+        /* Ô nhập ngày ở màn hình 1 */
+        .date-container {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #f1f8e9;
+            border-radius: 10px;
+            border: 1px solid #c8e6c9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .date-container label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .date-container input[type="date"] {
+            padding: 5px;
+            border: 1px solid #a5d6a7;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        /* Nút thao tác điều hướng */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .btn-main {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+        }
+        .btn-sub {
+            padding: 12px;
+            background: #cfd8dc;
+            color: #37474f;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Giao diện Màn hình 2: Khung nhập chi phí */
         .row {
             display: flex;
             gap: 12px;
@@ -81,15 +207,12 @@
         .input-group {
             margin-bottom: 8px;
         }
-        label { 
+        .col label { 
             font-weight: bold; 
             display: block; 
             color: #4f5b4d; 
             font-size: 12px;
             margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         .input-wrapper {
             position: relative;
@@ -101,41 +224,63 @@
             left: 8px;
             font-size: 14px;
         }
-        input { 
+        .col input { 
             width: 100%; 
             padding: 7px 5px 7px 28px; 
             box-sizing: border-box; 
             border: 2px solid #e0e0e0; 
             border-radius: 8px; 
             font-size: 14px; 
-            transition: all 0.3s;
             background-color: #fafafa;
-            font-family: inherit;
         }
-        input:focus {
+        .col input:focus {
             border-color: #81c784;
             background-color: #fff;
             outline: none;
         }
-        button { 
-            width: 100%; 
-            padding: 12px; 
-            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            margin-top: 10px; 
-            cursor: pointer; 
-            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
-            font-family: inherit;
+
+        /* Khung chọn tỉ lệ tiền cầu ở màn hình 2 */
+        .ratio-container {
+            margin-top: 5px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
         }
-        button:active {
-            transform: scale(0.99);
+        .ratio-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #4f5b4d;
+            margin-bottom: 6px;
+        }
+        .ratio-options {
+            display: flex;
+            gap: 8px;
+        }
+        .ratio-options label {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.2s;
+            user-select: none;
+            color: #555;
+        }
+        .ratio-options input[type="radio"] {
+            display: none;
+        }
+        .ratio-options input[type="radio"]:checked + label {
+            background: #4caf50;
+            color: white;
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
         }
 
-        /* Khung hiển thị kết quả */
+        /* Khung hiển thị kết quả tổng hợp */
         .result { 
             margin-top: 12px; 
             padding: 10px; 
@@ -159,16 +304,55 @@
             border-bottom: 1px dotted #c8e6c9;
             padding-bottom: 3px;
         }
-        .result p:last-child {
+        .result p:last-child { border-bottom: none; }
+        .price { font-weight: bold; color: #c62828; font-size: 14px; }
+
+        /* Bảng xuất danh sách đóng tiền chi tiết theo TÊN */
+        .bill-details-box {
+            margin-top: 12px;
+            padding: 10px;
+            background: #fff8e1;
+            border-radius: 10px;
+            border: 1px solid #ffe082;
+            display: none; /* Chỉ hiện khi có nhập tên */
+        }
+        .bill-title {
+            font-weight: bold;
+            color: #b76e00;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 12.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.4;
+        }
+        .bill-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .bill-table th {
+            background-color: #ffe082;
+            color: #5d4037;
+            padding: 6px;
+            text-align: left;
+            font-weight: bold;
+        }
+        .bill-table td {
+            padding: 6px;
+            border-bottom: 1px dashed #ffe082;
+            color: #333;
+        }
+        .bill-table tr:last-child td {
             border-bottom: none;
         }
-        .price { 
-            font-weight: bold; 
-            color: #c62828; 
-            font-size: 14px;
+        .bill-price {
+            font-weight: bold;
+            color: #d84315;
+            text-align: right;
         }
 
-        /* Khung giải thích Rule phía dưới */
+        /* Khung quy tắc */
         .rule-section {
             margin-top: 12px;
             padding: 10px 12px;
@@ -181,20 +365,9 @@
             font-weight: bold;
             color: #00796b;
             margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
-        .rule-section ul {
-            margin: 0;
-            padding-left: 15px;
-        }
-        .rule-section li {
-            font-size: 11.5px;
-            color: #555;
-            margin-bottom: 4px;
-            line-height: 1.4;
-        }
+        .rule-section ul { margin: 0; padding-left: 15px; }
+        .rule-section li { font-size: 11.5px; color: #555; margin-bottom: 4px; line-height: 1.4; }
         .feedback-text {
             text-align: center;
             font-size: 11.5px;
@@ -213,92 +386,235 @@
         <div class="app-title">🏸 TÍNH TIỀN CẦU 🚀</div>
         <div class="author-info">
             Created by Thi Nguyen<br>
-            Version 1.0<br>
+            Version 1.2<br>
             © 2026 Thi Nguyen. All rights reserved.
         </div>
     </div>
     
-    <div class="row">
-        <div class="col">
-            <div class="section-title">💰 Chi phí</div>
-            
-            <div class="input-group">
-                <label>Tiền sân:</label>
-                <div class="input-wrapper">
-                    <span class="icon">🏟️</span>
-                    <input type="number" id="txtTienSan" value="0" onclick="this.select();">
+    <div id="page1" class="page active">
+        <div class="section-title" style="margin-bottom: 12px;">📝 Nhập danh sách thành viên tham gia buổi tập</div>
+        
+        <div class="member-grid" id="memberGridContainer">
+            <div class="member-col" id="colLeft"></div>
+            <div class="member-col" id="colRight"></div>
+        </div>
+
+        <div class="date-container">
+            <label for="txtNgayTap">Chọn ngày tập (không bắt buộc):</label>
+            <input type="date" id="txtNgayTap">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-sub" onclick="chuyenTrang(2, true)">Bỏ qua ⏭️</button>
+            <button class="btn-main" onclick="xuLyDanhSach()">Tiếp tục 🚀</button>
+        </div>
+    </div>
+
+    <div id="page2" class="page">
+        <div class="row">
+            <div class="col">
+                <div class="section-title">💰 Chi phí</div>
+                <div class="input-group">
+                    <label>Tiền sân:</label>
+                    <div class="input-wrapper">
+                        <span class="icon">🏟️</span>
+                        <input type="number" id="txtTienSan" value="0" onclick="this.select();">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Tiền cầu (hộp):</label>
+                    <div class="input-wrapper">
+                        <span class="icon">📦</span>
+                        <input type="number" id="txtTienCau" value="0" onclick="this.select();">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Tiền cầu lẻ:</label>
+                    <div class="input-wrapper">
+                        <span class="icon">🏸</span>
+                        <input type="number" id="txtTienCauLe" value="0" onclick="this.select();">
+                    </div>
                 </div>
             </div>
 
-            <div class="input-group">
-                <label>Tiền cầu (hộp):</label>
-                <div class="input-wrapper">
-                    <span class="icon">📦</span>
-                    <input type="number" id="txtTienCau" value="0" onclick="this.select();">
+            <div class="col">
+                <div class="section-title">🧑‍🤝‍🧑 Thành viên</div>
+                <div class="input-group">
+                    <label>Số lượng Nam:</label>
+                    <div class="input-wrapper">
+                        <span class="icon">👦</span>
+                        <input type="number" id="txtSoLuongNam" value="0" onclick="this.select();">
+                    </div>
                 </div>
-            </div>
-
-            <div class="input-group">
-                <label>Tiền cầu lẻ:</label>
-                <div class="input-wrapper">
-                    <span class="icon">🏸</span>
-                    <input type="number" id="txtTienCauLe" value="0" onclick="this.select();">
+                <div class="input-group">
+                    <label>Số lượng Nữ:</label>
+                    <div class="input-wrapper">
+                        <span class="icon">👧</span>
+                        <input type="number" id="txtSoLuongNu" value="0" onclick="this.select();">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Nửa buổi (Về/Trễ):</label>
+                    <div class="input-wrapper">
+                        <span class="icon">🕒</span>
+                        <input type="number" id="txtVeSomToiTre" value="0" onclick="this.select();">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="section-title">🧑‍🤝‍🧑 Thành viên</div>
-
-            <div class="input-group">
-                <label>Số lượng Nam:</label>
-                <div class="input-wrapper">
-                    <span class="icon">👦</span>
-                    <input type="number" id="txtSoLuongNam" value="0" onclick="this.select();">
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>Số lượng Nữ:</label>
-                <div class="input-wrapper">
-                    <span class="icon">👧</span>
-                    <input type="number" id="txtSoLuongNu" value="0" onclick="this.select();">
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>Nửa buổi (Về/Trễ):</label>
-                <div class="input-wrapper">
-                    <span class="icon">🕒</span>
-                    <input type="number" id="txtVeSomToiTre" value="0" onclick="this.select();">
-                </div>
+        <div class="ratio-container">
+            <div class="ratio-title">⚙️ Tỉ lệ tiền cầu của Nữ so với Nam:</div>
+            <div class="ratio-options">
+                <input type="radio" name="cauRatio" id="ratio50" value="0.5">
+                <label for="ratio50">50% (0.5)</label>
+                
+                <input type="radio" name="cauRatio" id="ratio67" value="0.67" checked>
+                <label for="ratio67">67% (0.67 - Gốc)</label>
+                
+                <input type="radio" name="cauRatio" id="ratio75" value="0.75">
+                <label for="ratio75">75% (0.75)</label>
             </div>
         </div>
-    </div>
 
-    <button onclick="tinhTien()">🌸 TÍNH TIỀN NGAY 🌸</button>
+        <button class="btn-main" style="width: 100%;" onclick="tinhTien()">🌸 TÍNH TIỀN NGAY 🌸</button>
 
-    <div class="result">
-        <div class="result-title">📋 BẢNG CHIA TIỀN CHI TIẾT</div>
-        <p><span>👦 Tiền Nam (Làm tròn lên):</span> <span class="price" id="resNam">0K / người</span></p>
-        <p><span>👧 Tiền Nữ (Làm tròn xuống):</span> <span class="price" id="resNu">0K / người</span></p>
-        <p><span>🕒 Tiền Nửa buổi (Làm tròn xuống):</span> <span class="price" id="resNuaBuoi">0K / người</span></p>
-    </div>
+        <div class="result">
+            <div class="result-title">📋 BẢNG CHIA TIỀN TỔNG HỢP</div>
+            <p><span>👦 Tiền Nam:</span> <span class="price" id="resNam">0K / người</span></p>
+            <p><span>👧 Tiền Nữ:</span> <span class="price" id="resNu">0K / người</span></p>
+            <p><span>🕒 Tiền Nửa buổi:</span> <span class="price" id="resNuaBuoi">0K / người</span></p>
+        </div>
 
-    <div class="rule-section">
-        <div class="rule-title">📜 QUY TẮC TÍNH TOÁN:</div>
-        <ul>
-            <li><b>Tiền sân:</b> Nữ chia đều bằng Nam.</li>
-            <li><b>Tiền cầu:</b> Nữ chịu khoảng <b>70%</b> (~0.67) so với Nam.</li>
-            <li><b>Nửa buổi (Về sớm/Tới trễ):</b> Chịu cố định <b>50%</b> (0.5) tổng tiền của Nam (áp dụng chung cho cả nam và nữ).</li>
-        </ul>
-        <div class="feedback-text">
-            🙏 Cảm ơn đã sử dụng!!! Lắng nghe mọi góp ý!!!! ❤️
+        <div class="bill-details-box" id="billDetailsBox">
+            <div class="bill-title" id="billTitleText">💸 DANH SÁCH ĐÓNG TIỀN CHI TIẾT</div>
+            <table class="bill-table">
+                <thead>
+                    <tr>
+                        <th>Tên</th>
+                        <th>Phân loại</th>
+                        <th style="text-align: right;">Số tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="billTableBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="rule-section">
+            <div class="rule-title">📜 QUY TẮC TÍNH TOÁN:</div>
+            <ul>
+                <li><b>Tiền sân:</b> Nữ chia đều bằng Nam.</li>
+                <li><b>Tiền cầu:</b> Nữ chịu khoảng <b id="ruleTextTiLe">70% (~0.67)</b> so với Nam.</li>
+                <li><b>Nửa buổi (Về sớm/Tới trễ):</b> Chịu cố định <b>50%</b> (0.5) tổng tiền của Nam.</li>
+            </ul>
+            <div class="feedback-text">
+                🙏 Cảm ơn đã sử dụng!!! Lắng nghe mọi góp ý!!!! ❤️
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-sub" style="width: 100%;" onclick="chuyenTrang(1, false)">⬅️ Quay lại sửa danh sách</button>
         </div>
     </div>
 </div>
 
 <script>
+// Biến cờ check xem người dùng có chọn đi theo luồng nhập tên hay không
+let loaiHinhLuong = "co_ten"; 
+
+// Tự động tạo 30 ô nhập liệu chia đều 2 cột khi web mở lên
+window.onload = function() {
+    let colLeft = document.getElementById('colLeft');
+    let colRight = document.getElementById('colRight');
+    
+    for (let i = 1; i <= 30; i++) {
+        let rowHtml = `
+            <div class="member-row">
+                <span class="member-no">${i}</span>
+                <input type="text" class="member-name" id="name_${i}" placeholder="Tên...">
+                <div class="type-options">
+                    <input type="radio" name="type_${i}" id="nam_${i}" value="nam" checked>
+                    <label for="nam_${i}" class="lbl-nam">👦</label>
+                    
+                    <input type="radio" name="type_${i}" id="nu_${i}" value="nu">
+                    <label for="nu_${i}" class="lbl-nu">👧</label>
+                    
+                    <input type="radio" name="type_${i}" id="nb_${i}" value="nua_buoi">
+                    <label for="nb_${i}" class="lbl-nb">🕒</label>
+                </div>
+            </div>
+        `;
+        if (i <= 15) {
+            colLeft.innerHTML += rowHtml;
+        } else {
+            colRight.innerHTML += rowHtml;
+        }
+    }
+};
+
+// Hàm định dạng ngày thành chuỗi dd-mm-yyyy
+function layChuoiNgayDinhDang() {
+    let inputDate = document.getElementById('txtNgayTap').value;
+    let d;
+    if (inputDate) {
+        d = new Date(inputDate);
+    } else {
+        d = new Date();
+    }
+    let ngay = String(d.getDate()).padStart(2, '0');
+    let thang = String(d.getMonth() + 1).padStart(2, '0');
+    let nam = d.getFullYear();
+    return `${ngay}-${thang}-${nam}`;
+}
+
+// Hàm chuyển đổi màn hình
+function chuyenTrang(pageNo, isSkip = false) {
+    document.getElementById('page1').classList.remove('active');
+    document.getElementById('page2').classList.remove('active');
+    document.getElementById('page' + pageNo).classList.add('active');
+    
+    if (isSkip) {
+        loaiHinhLuong = "bo_qua";
+        document.getElementById('txtSoLuongNam').value = 0;
+        document.getElementById('txtSoLuongNu').value = 0;
+        document.getElementById('txtVeSomToiTre').value = 0;
+        document.getElementById('billDetailsBox').style.display = 'none'; // Ẩn khung hóa đơn chi tiết tên
+    } else {
+        loaiHinhLuong = "co_ten";
+    }
+}
+
+// Đếm số lượng từ danh sách đưa sang màn hình 2
+function xuLyDanhSach() {
+    let demNam = 0;
+    let demNu = 0;
+    let demNuaBuoi = 0;
+    let coNhapTen = false;
+
+    for (let i = 1; i <= 30; i++) {
+        let ten = document.getElementById(`name_${i}`).value.trim();
+        if (ten !== "") {
+            coNhapTen = true;
+            if (document.getElementById(`nam_${i}`).checked) demNam++;
+            else if (document.getElementById(`nu_${i}`).checked) demNu++;
+            else if (document.getElementById(`nb_${i}`).checked) demNuaBuoi++;
+        }
+    }
+
+    if (!coNhapTen) {
+        alert("Bạn chưa nhập tên thành viên nào hết nè! Nếu lười điền tên bạn bấm nút 'Bỏ qua' kế bên nha 🥰");
+        return;
+    }
+
+    document.getElementById('txtSoLuongNam').value = demNam;
+    document.getElementById('txtSoLuongNu').value = demNu;
+    document.getElementById('txtVeSomToiTre').value = demNuaBuoi;
+
+    chuyenTrang(2, false);
+}
+
+// Logic tính toán và kết xuất hóa đơn chi tiết
 function tinhTien() {
     let tienSan = parseFloat(document.getElementById('txtTienSan').value) || 0;
     let tienCau = parseFloat(document.getElementById('txtTienCau').value) || 0;
@@ -313,28 +629,96 @@ function tinhTien() {
     let soNuaBuoi = parseFloat(document.getElementById('txtVeSomToiTre').value) || 0;
 
     if (soNam === 0 && soNu === 0 && soNuaBuoi === 0) {
-        alert("Vui lòng nhập số lượng người chơi hợp lệ bạn nhé! 🥰");
+        alert("Vui lòng nhập số lượng người chơi hợp lệ nha bạn! 🥰");
         return;
     }
 
+    // Lấy tỉ lệ tiền cầu được lựa chọn từ radio button
+    let tiLeCauNu = 0.67;
+    let textMoTaTiLe = "70% (~0.67)";
+    if (document.getElementById('ratio50').checked) {
+        tiLeCauNu = 0.5;
+        textMoTaTiLe = "50% (0.5)";
+    } else if (document.getElementById('ratio75').checked) {
+        tiLeCauNu = 0.75;
+        textMoTaTiLe = "75% (0.75)";
+    }
+
+    // Cập nhật câu hiển thị RULE tương ứng với tỉ lệ vừa lựa chọn
+    document.getElementById('ruleTextTiLe').innerText = textMoTaTiLe;
+
+    // Tính toán theo công thức động dựa trên tỉ lệ lựa chọn
     let mauSoSan = soNam + soNu + (0.5 * soNuaBuoi);
-    let mauSoCau = soNam + (0.67 * soNu) + (0.5 * soNuaBuoi);
+    let mauSoCau = soNam + (tiLeCauNu * soNu) + (0.5 * soNuaBuoi);
 
     let tienSanNam = mauSoSan > 0 ? (tienSan / mauSoSan) : 0;
     let tongTienCau = tienCau + tienCauLe;
     let tienCauNam = mauSoCau > 0 ? (tongTienCau / mauSoCau) : 0;
     
     let tongNam = tienSanNam + tienCauNam;
-    let tongNu = tienSanNam + (tienCauNam * 0.67);
+    let tongNu = tienSanNam + (tienCauNam * tiLeCauNu);
     let tongNuaBuoi = tongNam * 0.5;
 
     let kNam = soNam > 0 ? Math.ceil(tongNam / 1000) : 0;
     let kNu = soNu > 0 ? Math.floor(tongNu / 1000) : 0;
     let kNuaBuoi = soNuaBuoi > 0 ? Math.floor(tongNuaBuoi / 1000) : 0;
 
+    // Cập nhật lên bảng tổng hợp công khai
     document.getElementById('resNam').innerText = kNam + "K / người";
     document.getElementById('resNu').innerText = kNu + "K / người";
     document.getElementById('resNuaBuoi').innerText = kNuaBuoi + "K / người";
+
+    // XỬ LÝ SINH HOÁ ĐƠN CHI TIẾT THEO TÊN
+    let containerBill = document.getElementById('billDetailsBox');
+    let tbodyBill = document.getElementById('billTableBody');
+    let titleBill = document.getElementById('billTitleText');
+    
+    tbodyBill.innerHTML = ""; // Reset dữ liệu cũ
+
+    if (loaiHinhLuong === "co_ten") {
+        let coDuLieuDoc = false;
+        
+        for (let i = 1; i <= 30; i++) {
+            let ten = document.getElementById(`name_${i}`).value.trim();
+            if (ten !== "") {
+                coDuLieuDoc = true;
+                let vaiTro = "";
+                let soTienK = 0;
+
+                if (document.getElementById(`nam_${i}`).checked) {
+                    vaiTro = "👦 Nam";
+                    soTienK = kNam;
+                } else if (document.getElementById(`nu_${i}`).checked) {
+                    vaiTro = "👧 Nữ";
+                    soTienK = kNu;
+                } else if (document.getElementById(`nb_${i}`).checked) {
+                    vaiTro = "🕒 Nửa buổi";
+                    soTienK = kNuaBuoi;
+                }
+
+                // Chèn hàng vào bảng hoá đơn
+                let row = `
+                    <tr>
+                        <td><b>${ten}</b></td>
+                        <td>${vaiTro}</td>
+                        <td class="bill-price">${soTienK}K</td>
+                    </tr>
+                `;
+                tbodyBill.innerHTML += row;
+            }
+        }
+
+        if (coDuLieuDoc) {
+            // Định dạng tiêu đề chứa Ngày dd-mm-yyyy như yêu cầu
+            let chuoiNgay = layChuoiNgayDinhDang();
+            titleBill.innerText = `💸 DANH SÁCH ĐÓNG TIỀN CHI TIẾT NGÀY ${chuoiNgay}`;
+            containerBill.style.display = 'block'; // Hiện khung bảng
+        } else {
+            containerBill.style.display = 'none';
+        }
+    } else {
+        containerBill.style.display = 'none';
+    }
 }
 </script>
 
