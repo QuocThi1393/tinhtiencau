@@ -6,11 +6,22 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/505/505730.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🏸 Tính Tiền Cầu Lông 🌿</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #a5d6a7;
+            --bg-gradient: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            --nam-color: #2196f3;
+            --nu-color: #e91e63;
+            --nb-color: #ffb300;
+        }
+
         body { 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
-            padding: 10px; 
+            background: var(--bg-gradient); 
+            padding: 15px; 
             margin: 0; 
             min-height: 100vh;
             display: flex;
@@ -20,26 +31,26 @@
         }
         .container { 
             width: 100%;
-            max-width: 600px; 
+            max-width: 650px; 
             background: #ffffff; 
-            padding: 15px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            border: 2px solid #a5d6a7;
+            padding: 20px; 
+            border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+            border: 2px solid var(--primary-light);
             box-sizing: border-box;
         }
         
-        /* Khung Header chứa tên App và Tác giả */
+        /* Khung Header */
         .header-section {
             position: relative;
             text-align: center;
-            margin-bottom: 12px;
-            border-bottom: 2px dashed #a5d6a7;
-            padding-bottom: 32px;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed var(--primary-light);
+            padding-bottom: 35px;
         }
         .app-title {
-            color: #2e7d32;
-            font-size: 24px;
+            color: var(--primary);
+            font-size: 26px;
             font-weight: 800;
             margin: 5px 0 0 0;
             letter-spacing: 0.5px;
@@ -53,21 +64,17 @@
             right: 5px;
             bottom: 4px;
             text-align: right;
-            font-size: 9px; 
+            font-size: 9.5px; 
             color: #8fa38b; 
-            line-height: 1.3;
+            line-height: 1.4;
             font-family: Arial, sans-serif;
         }
 
         /* Quản lý ẩn hiện màn hình */
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
+        .page { display: none; }
+        .page.active { display: block; }
 
-        /* Giao diện Màn hình 1: Danh sách thành viên */
+        /* Giao diện Màn hình 1: GRID danh sách */
         .member-grid {
             display: flex;
             gap: 15px;
@@ -76,89 +83,124 @@
             flex: 1;
             min-width: 0;
         }
+        
         .member-row {
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-bottom: 6px;
-            background: #fafafa;
-            padding: 3px;
-            border-radius: 6px;
-            border: 1px solid #eee;
+            gap: 5px;
+            margin-bottom: 8px;
+            background: #fcfcfc;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid #eef2ee;
+            transition: all 0.2s ease;
         }
+        .member-row:focus-within {
+            background: #edf7ed;
+            border-color: #81c784;
+            box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+        }
+
         .member-no {
             font-size: 11px;
             font-weight: bold;
-            color: #888;
-            width: 16px;
+            color: #999;
+            width: 18px;
             text-align: center;
         }
-        .member-name {
+
+        .input-name-wrapper {
+            position: relative;
             flex: 1;
-            min-width: 0;
-            padding: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .member-name {
+            width: 100%;
+            padding: 6px 22px 6px 6px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
             box-sizing: border-box;
+            background: #fff;
+            transition: border-color 0.2s;
         }
         .member-name:focus {
-            border-color: #4caf50;
+            border-color: var(--primary);
             outline: none;
-            background: #fff;
         }
+        .clear-btn {
+            position: absolute;
+            right: 5px;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 10px;
+            padding: 2px;
+            display: none;
+        }
+        .member-name:placeholder-shown + .clear-btn { display: none; }
+        .input-name-wrapper:hover .clear-btn { display: block; }
+        .clear-btn:hover { color: #999; }
         
-        /* Custom Radio gộp nhóm lựa chọn thành viên */
         .type-options {
             display: flex;
-            gap: 2px;
+            background: #eee;
+            padding: 2px;
+            border-radius: 6px;
+            gap: 1px;
         }
         .type-options label {
             cursor: pointer;
-            padding: 4px 5px;
-            background: #e0e0e0;
+            padding: 4px 6px;
             border-radius: 4px;
             font-size: 11px;
-            transition: all 0.2s;
+            transition: all 0.15s ease;
             user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
         }
-        .type-options input[type="radio"] {
-            display: none;
-        }
-        .type-options input[type="radio"]:checked + label.lbl-nam { background: #90caf9; font-weight: bold; }
-        .type-options input[type="radio"]:checked + label.lbl-nu { background: #f48fb1; font-weight: bold; }
-        .type-options input[type="radio"]:checked + label.lbl-nb { background: #ffe082; font-weight: bold; }
+        .type-options input[type="radio"] { display: none; }
+        .type-options input[type="radio"]:checked + label.lbl-nam { background: var(--nam-color); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); }
+        .type-options input[type="radio"]:checked + label.lbl-nu { background: var(--nu-color); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); }
+        .type-options input[type="radio"]:checked + label.lbl-nb { background: var(--nb-color); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); }
 
-        /* Ô nhập ngày ở màn hình 1 */
+        /* Ô chọn Ngày */
         .date-container {
             margin-top: 15px;
-            padding: 8px 12px;
+            padding: 10px 12px;
             background: #f1f8e9;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid #c8e6c9;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .date-container label {
             font-size: 13px;
             font-weight: bold;
-            color: #2e7d32;
+            color: var(--primary);
         }
         .date-container input[type="date"] {
-            padding: 5px;
-            border: 1px solid #a5d6a7;
-            border-radius: 6px;
+            padding: 6px 10px;
+            border: 1px solid var(--primary-light);
+            border-radius: 8px;
             font-size: 13px;
             font-family: inherit;
             outline: none;
+            background: white;
         }
 
-        /* Nút thao tác điều hướng */
+        /* Nút điều hướng */
         .btn-group {
             display: flex;
             gap: 10px;
-            margin-top: 12px;
+            margin-top: 15px;
         }
         .btn-main {
             flex: 1;
@@ -166,165 +208,195 @@
             background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+            transition: all 0.2s;
         }
         .btn-sub {
-            padding: 12px;
+            padding: 12px 18px;
             background: #cfd8dc;
             color: #37474f;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s;
         }
-        button:active {
-            transform: scale(0.98);
+        
+        /* Nút Lưu hóa đơn ảnh chuyên dụng */
+        .btn-screenshot {
+            width: 100%;
+            margin-top: 10px;
+            padding: 11px;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(245, 124, 0, 0.25);
+            transition: all 0.2s;
+            display: none; /* Chỉ hiện khi xuất hóa đơn chi tiết */
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        /* Giao diện Màn hình 2: Khung nhập chi phí */
-        .row {
-            display: flex;
-            gap: 12px;
-        }
-        .col {
-            flex: 1;
-            min-width: 0; 
-        }
+        button:active { transform: scale(0.97); }
+
+        /* Giao diện Màn hình 2 */
+        .row { display: flex; gap: 15px; }
+        .col { flex: 1; min-width: 0; }
         .section-title {
-            font-size: 12px;
-            color: #2e7d32;
-            margin: 0 0 10px 0;
+            font-size: 12.5px;
+            color: var(--primary);
+            margin: 0 0 12px 0;
             font-weight: bold;
             text-transform: uppercase;
-            border-left: 3px solid #4caf50;
+            border-left: 3.5px solid #4caf50;
             padding-left: 6px;
+            letter-spacing: 0.3px;
         }
-        .input-group {
-            margin-bottom: 8px;
-        }
+        .input-group { margin-bottom: 10px; }
         .col label { 
             font-weight: bold; 
             display: block; 
             color: #4f5b4d; 
             font-size: 12px;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         .input-wrapper {
             position: relative;
             display: flex;
             align-items: center;
         }
-        .icon {
-            position: absolute;
-            left: 8px;
-            font-size: 14px;
-        }
+        .icon { position: absolute; left: 10px; font-size: 14px; }
         .col input { 
             width: 100%; 
-            padding: 7px 5px 7px 28px; 
+            padding: 8px 8px 8px 32px; 
             box-sizing: border-box; 
             border: 2px solid #e0e0e0; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             font-size: 14px; 
             background-color: #fafafa;
+            transition: all 0.2s;
         }
         .col input:focus {
             border-color: #81c784;
             background-color: #fff;
             outline: none;
+            box-shadow: 0 0 6px rgba(129,199,132,0.2);
         }
 
-        /* Khung chọn tỉ lệ tiền cầu ở màn hình 2 */
+        /* Khung chọn tỉ lệ tiền cầu */
         .ratio-container {
-            margin-top: 5px;
-            margin-bottom: 12px;
-            padding: 10px;
+            margin: 12px 0;
+            padding: 10px 12px;
             background: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
+            border: 1px solid #e3ede3;
+            border-radius: 12px;
         }
         .ratio-title {
             font-size: 12px;
             font-weight: bold;
             color: #4f5b4d;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         .ratio-options {
             display: flex;
-            gap: 8px;
+            background: #eef2ee;
+            padding: 3px;
+            border-radius: 8px;
+            gap: 4px;
         }
         .ratio-options label {
             flex: 1;
             text-align: center;
             cursor: pointer;
-            padding: 8px;
-            background: #e0e0e0;
+            padding: 7px;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: bold;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             user-select: none;
-            color: #555;
+            color: #666;
+            background: transparent;
         }
-        .ratio-options input[type="radio"] {
-            display: none;
-        }
+        .ratio-options input[type="radio"] { display: none; }
         .ratio-options input[type="radio"]:checked + label {
-            background: #4caf50;
+            background: var(--primary);
             color: white;
-            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 2px 6px rgba(46,125,50,0.2);
         }
 
-        /* Khung hiển thị kết quả tổng hợp */
+        /* Bảng tổng hợp công khai */
         .result { 
-            margin-top: 12px; 
-            padding: 10px; 
+            margin-top: 15px; 
+            padding: 12px; 
             background: #f1f8e9; 
-            border-radius: 10px; 
+            border-radius: 12px; 
             border: 1px solid #c8e6c9;
         }
         .result-title {
             font-weight: bold;
             color: #33691e;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-align: center;
             font-size: 13px;
+            letter-spacing: 0.3px;
         }
         .result p { 
-            margin: 5px 0; 
+            margin: 6px 0; 
             font-size: 13.5px; 
             color: #333; 
             display: flex;
             justify-content: space-between;
             border-bottom: 1px dotted #c8e6c9;
-            padding-bottom: 3px;
+            padding-bottom: 4px;
         }
         .result p:last-child { border-bottom: none; }
-        .price { font-weight: bold; color: #c62828; font-size: 14px; }
+        .price { font-weight: bold; color: #c62828; font-size: 14.5px; }
 
-        /* Bảng xuất danh sách đóng tiền chi tiết theo TÊN */
+        /* Khung hóa đơn chi tiết dạng răng cưa */
         .bill-details-box {
-            margin-top: 12px;
-            padding: 10px;
-            background: #fff8e1;
-            border-radius: 10px;
+            margin-top: 18px;
+            background: #fffbef;
+            border-radius: 12px 12px 0 0;
             border: 1px solid #ffe082;
-            display: none; /* Chỉ hiện khi có nhập tên */
+            border-bottom: none;
+            position: relative;
+            padding: 15px 15px 25px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: none; 
+        }
+        .bill-details-box::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background-size: 12px 10px;
+            background-repeat: repeat-x;
+            background-image: linear-gradient(-45deg, #ffffff 5px, transparent 0), 
+                              linear-gradient(45deg, #ffffff 5px, transparent 0);
         }
         .bill-title {
-            font-weight: bold;
-            color: #b76e00;
-            margin-bottom: 8px;
+            font-weight: 800;
+            color: #795548;
+            margin-bottom: 12px;
             text-align: center;
-            font-size: 12.5px;
+            font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
             line-height: 1.4;
+            border-bottom: 2px dashed #ffe082;
+            padding-bottom: 8px;
         }
         .bill-table {
             width: 100%;
@@ -332,30 +404,36 @@
             font-size: 13px;
         }
         .bill-table th {
-            background-color: #ffe082;
             color: #5d4037;
             padding: 6px;
             text-align: left;
             font-weight: bold;
+            border-bottom: 1px solid #ffe082;
         }
         .bill-table td {
-            padding: 6px;
-            border-bottom: 1px dashed #ffe082;
+            padding: 7px 6px;
+            border-bottom: 1px dashed #fff1cb;
             color: #333;
         }
-        .bill-table tr:last-child td {
-            border-bottom: none;
-        }
+        .bill-table tr:last-child td { border-bottom: none; }
         .bill-price {
             font-weight: bold;
             color: #d84315;
             text-align: right;
+            font-size: 13.5px;
+        }
+        .bill-footer-note {
+            text-align: center;
+            font-size: 9.5px;
+            color: #a1887f;
+            margin-top: 15px;
+            font-style: italic;
         }
 
-        /* Khung quy tắc */
+        /* Khung quy tắc dưới cùng */
         .rule-section {
-            margin-top: 12px;
-            padding: 10px 12px;
+            margin-top: 15px;
+            padding: 12px;
             background: #fafafa;
             border-radius: 12px;
             border: 1px dashed #b2dfdb;
@@ -364,7 +442,7 @@
             font-size: 12px;
             font-weight: bold;
             color: #00796b;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
         .rule-section ul { margin: 0; padding-left: 15px; }
         .rule-section li { font-size: 11.5px; color: #555; margin-bottom: 4px; line-height: 1.4; }
@@ -372,10 +450,18 @@
             text-align: center;
             font-size: 11.5px;
             font-weight: bold;
-            color: #2e7d32;
+            color: var(--primary);
             margin-top: 8px;
             border-top: 1px dotted #e0e0e0;
             padding-top: 6px;
+        }
+
+        /* 📱 RESPONSIVE */
+        @media (max-width: 520px) {
+            .member-grid, .row { flex-direction: column; gap: 0; }
+            .col { margin-bottom: 15px; }
+            .date-container { flex-direction: column; align-items: flex-start; }
+            .date-container input[type="date"] { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
@@ -386,7 +472,7 @@
         <div class="app-title">🏸 TÍNH TIỀN CẦU 🚀</div>
         <div class="author-info">
             Created by Thi Nguyen<br>
-            Version 1.2<br>
+            Version 1.1<br>
             © 2026 Thi Nguyen. All rights reserved.
         </div>
     </div>
@@ -400,7 +486,7 @@
         </div>
 
         <div class="date-container">
-            <label for="txtNgayTap">Chọn ngày tập (không bắt buộc):</label>
+            <label for="txtNgayTap">📅 Chọn ngày tập (mặc định hôm nay):</label>
             <input type="date" id="txtNgayTap">
         </div>
 
@@ -470,7 +556,7 @@
                 <label for="ratio50">50% (0.5)</label>
                 
                 <input type="radio" name="cauRatio" id="ratio67" value="0.67" checked>
-                <label for="ratio67">67% (0.67 - Gốc)</label>
+                <label for="ratio67">67% (Mặc định)</label>
                 
                 <input type="radio" name="cauRatio" id="ratio75" value="0.75">
                 <label for="ratio75">75% (0.75)</label>
@@ -499,7 +585,12 @@
                 <tbody id="billTableBody">
                     </tbody>
             </table>
+            <div class="bill-footer-note">Hóa đơn được tạo tự động bởi App Tính Tiền Cầu v1.1 🏸</div>
         </div>
+
+        <button class="btn-screenshot" id="btnSaveImg" onclick="luuHoaDonAnh()">
+            📸 LƯU HÓA ĐƠN DẠNG ẢNH (.PNG)
+        </button>
 
         <div class="rule-section">
             <div class="rule-title">📜 QUY TẮC TÍNH TOÁN:</div>
@@ -520,10 +611,9 @@
 </div>
 
 <script>
-// Biến cờ check xem người dùng có chọn đi theo luồng nhập tên hay không
 let loaiHinhLuong = "co_ten"; 
 
-// Tự động tạo 30 ô nhập liệu chia đều 2 cột khi web mở lên
+// Tạo 30 ô nhập liệu tự động
 window.onload = function() {
     let colLeft = document.getElementById('colLeft');
     let colRight = document.getElementById('colRight');
@@ -532,7 +622,10 @@ window.onload = function() {
         let rowHtml = `
             <div class="member-row">
                 <span class="member-no">${i}</span>
-                <input type="text" class="member-name" id="name_${i}" placeholder="Tên...">
+                <div class="input-name-wrapper">
+                    <input type="text" class="member-name" id="name_${i}" placeholder="Tên..." oninput="kiemTraXoa(${i})">
+                    <button class="clear-btn" id="clear_${i}" onclick="xoaNhanh(${i})">❌</button>
+                </div>
                 <div class="type-options">
                     <input type="radio" name="type_${i}" id="nam_${i}" value="nam" checked>
                     <label for="nam_${i}" class="lbl-nam">👦</label>
@@ -545,30 +638,31 @@ window.onload = function() {
                 </div>
             </div>
         `;
-        if (i <= 15) {
-            colLeft.innerHTML += rowHtml;
-        } else {
-            colRight.innerHTML += rowHtml;
-        }
+        if (i <= 15) colLeft.innerHTML += rowHtml;
+        else colRight.innerHTML += rowHtml;
     }
 };
 
-// Hàm định dạng ngày thành chuỗi dd-mm-yyyy
+function xoaNhanh(id) {
+    let input = document.getElementById(`name_${id}`);
+    input.value = "";
+    input.focus();
+    document.getElementById(`clear_${id}`).style.display = 'none';
+}
+function kiemTraXoa(id) {
+    let text = document.getElementById(`name_${id}`).value;
+    document.getElementById(`clear_${id}`).style.display = text.length > 0 ? 'block' : 'none';
+}
+
 function layChuoiNgayDinhDang() {
     let inputDate = document.getElementById('txtNgayTap').value;
-    let d;
-    if (inputDate) {
-        d = new Date(inputDate);
-    } else {
-        d = new Date();
-    }
+    let d = inputDate ? new Date(inputDate) : new Date();
     let ngay = String(d.getDate()).padStart(2, '0');
     let thang = String(d.getMonth() + 1).padStart(2, '0');
     let nam = d.getFullYear();
     return `${ngay}-${thang}-${nam}`;
 }
 
-// Hàm chuyển đổi màn hình
 function chuyenTrang(pageNo, isSkip = false) {
     document.getElementById('page1').classList.remove('active');
     document.getElementById('page2').classList.remove('active');
@@ -579,22 +673,19 @@ function chuyenTrang(pageNo, isSkip = false) {
         document.getElementById('txtSoLuongNam').value = 0;
         document.getElementById('txtSoLuongNu').value = 0;
         document.getElementById('txtVeSomToiTre').value = 0;
-        document.getElementById('billDetailsBox').style.display = 'none'; // Ẩn khung hóa đơn chi tiết tên
+        document.getElementById('billDetailsBox').style.display = 'none';
+        document.getElementById('btnSaveImg').style.display = 'none';
     } else {
         loaiHinhLuong = "co_ten";
     }
 }
 
-// Đếm số lượng từ danh sách đưa sang màn hình 2
 function xuLyDanhSach() {
-    let demNam = 0;
-    let demNu = 0;
-    let demNuaBuoi = 0;
-    let coNhapTen = false;
+    let demNam = 0, demNu = 0, demNuaBuoi = 0, coNhapTen = false;
 
     for (let i = 1; i <= 30; i++) {
-        let ten = document.getElementById(`name_${i}`).value.trim();
-        if (ten !== "") {
+        let textTen = document.getElementById(`name_${i}`).value.trim();
+        if (textTen !== "") {
             coNhapTen = true;
             if (document.getElementById(`nam_${i}`).checked) demNam++;
             else if (document.getElementById(`nu_${i}`).checked) demNu++;
@@ -614,7 +705,6 @@ function xuLyDanhSach() {
     chuyenTrang(2, false);
 }
 
-// Logic tính toán và kết xuất hóa đơn chi tiết
 function tinhTien() {
     let tienSan = parseFloat(document.getElementById('txtTienSan').value) || 0;
     let tienCau = parseFloat(document.getElementById('txtTienCau').value) || 0;
@@ -633,7 +723,6 @@ function tinhTien() {
         return;
     }
 
-    // Lấy tỉ lệ tiền cầu được lựa chọn từ radio button
     let tiLeCauNu = 0.67;
     let textMoTaTiLe = "70% (~0.67)";
     if (document.getElementById('ratio50').checked) {
@@ -644,10 +733,8 @@ function tinhTien() {
         textMoTaTiLe = "75% (0.75)";
     }
 
-    // Cập nhật câu hiển thị RULE tương ứng với tỉ lệ vừa lựa chọn
     document.getElementById('ruleTextTiLe').innerText = textMoTaTiLe;
 
-    // Tính toán theo công thức động dựa trên tỉ lệ lựa chọn
     let mauSoSan = soNam + soNu + (0.5 * soNuaBuoi);
     let mauSoCau = soNam + (tiLeCauNu * soNu) + (0.5 * soNuaBuoi);
 
@@ -663,17 +750,16 @@ function tinhTien() {
     let kNu = soNu > 0 ? Math.floor(tongNu / 1000) : 0;
     let kNuaBuoi = soNuaBuoi > 0 ? Math.floor(tongNuaBuoi / 1000) : 0;
 
-    // Cập nhật lên bảng tổng hợp công khai
     document.getElementById('resNam').innerText = kNam + "K / người";
     document.getElementById('resNu').innerText = kNu + "K / người";
     document.getElementById('resNuaBuoi').innerText = kNuaBuoi + "K / người";
 
-    // XỬ LÝ SINH HOÁ ĐƠN CHI TIẾT THEO TÊN
     let containerBill = document.getElementById('billDetailsBox');
+    let btnSaveImg = document.getElementById('btnSaveImg');
     let tbodyBill = document.getElementById('billTableBody');
     let titleBill = document.getElementById('billTitleText');
     
-    tbodyBill.innerHTML = ""; // Reset dữ liệu cũ
+    tbodyBill.innerHTML = ""; 
 
     if (loaiHinhLuong === "co_ten") {
         let coDuLieuDoc = false;
@@ -682,21 +768,16 @@ function tinhTien() {
             let ten = document.getElementById(`name_${i}`).value.trim();
             if (ten !== "") {
                 coDuLieuDoc = true;
-                let vaiTro = "";
-                let soTienK = 0;
+                let vaiTro = "", soTienK = 0;
 
                 if (document.getElementById(`nam_${i}`).checked) {
-                    vaiTro = "👦 Nam";
-                    soTienK = kNam;
+                    vaiTro = "👦 Nam"; soTienK = kNam;
                 } else if (document.getElementById(`nu_${i}`).checked) {
-                    vaiTro = "👧 Nữ";
-                    soTienK = kNu;
+                    vaiTro = "👧 Nữ"; soTienK = kNu;
                 } else if (document.getElementById(`nb_${i}`).checked) {
-                    vaiTro = "🕒 Nửa buổi";
-                    soTienK = kNuaBuoi;
+                    vaiTro = "🕒 Nửa buổi"; soTienK = kNuaBuoi;
                 }
 
-                // Chèn hàng vào bảng hoá đơn
                 let row = `
                     <tr>
                         <td><b>${ten}</b></td>
@@ -709,16 +790,52 @@ function tinhTien() {
         }
 
         if (coDuLieuDoc) {
-            // Định dạng tiêu đề chứa Ngày dd-mm-yyyy như yêu cầu
             let chuoiNgay = layChuoiNgayDinhDang();
             titleBill.innerText = `💸 DANH SÁCH ĐÓNG TIỀN CHI TIẾT NGÀY ${chuoiNgay}`;
-            containerBill.style.display = 'block'; // Hiện khung bảng
+            containerBill.style.display = 'block'; 
+            btnSaveImg.style.display = 'flex'; // Hiển thị nút lưu ảnh hóa đơn màu cam
         } else {
             containerBill.style.display = 'none';
+            btnSaveImg.style.display = 'none';
         }
     } else {
         containerBill.style.display = 'none';
+        btnSaveImg.style.display = 'none';
     }
+}
+
+// HÀM CHỤP VÀ TẢI ẢNH HÓA ĐƠN TỰ ĐỘNG
+function luuHoaDonAnh() {
+    let targetElement = document.getElementById('billDetailsBox');
+    let chuoiNgay = layChuoiNgayDinhDang();
+    
+    // Tạm thời ẩn phần viền cắt răng cưa nền trắng để chụp không bị lộ
+    targetElement.style.boxShadow = 'none';
+
+    html2canvas(targetElement, {
+        backgroundColor: '#fffbef', // Giữ nguyên màu nền ấm áp của bill
+        scale: 2, // Tăng gấp đôi độ phân giải giúp chữ sắc nét không bể khi gửi Zalo
+        logging: false,
+        useCORS: true
+    }).then(function(canvas) {
+        // Khôi phục lại shadow sau khi chụp xong
+        targetElement.style.boxShadow = '0 4px 15px rgba(0,0,0,0.03)';
+        
+        // Chuyển canvas thành URL ảnh PNG
+        let imgUrl = canvas.toDataURL("image/png");
+        
+        // Tạo một thẻ link ảo để kích hoạt hành động tải xuống tự động
+        let downloadLink = document.createElement('a');
+        downloadLink.href = imgUrl;
+        downloadLink.download = `HoaDon_CauLong_${chuoiNgay}.png`;
+        
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }).catch(function(error) {
+        alert("Úi, có lỗi nhỏ khi xuất ảnh rồi! Bạn thử chụp màn hình thủ công giúp mình nha 🥰");
+        console.error("Lỗi html2canvas: ", error);
+    });
 }
 </script>
 
