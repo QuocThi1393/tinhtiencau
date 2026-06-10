@@ -241,7 +241,7 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(245, 124, 0, 0.25);
             transition: all 0.2s;
-            display: none; /* Chỉ hiện khi xuất hóa đơn chi tiết */
+            display: none; 
             align-items: center;
             justify-content: center;
             gap: 6px;
@@ -472,7 +472,7 @@
         <div class="app-title">🏸 TÍNH TIỀN CẦU 🚀</div>
         <div class="author-info">
             Created by Thi Nguyen<br>
-            Version 1.1<br>
+            Version 1.4<br>
             © 2026 Thi Nguyen. All rights reserved.
         </div>
     </div>
@@ -585,7 +585,7 @@
                 <tbody id="billTableBody">
                     </tbody>
             </table>
-            <div class="bill-footer-note">Hóa đơn được tạo tự động bởi App Tính Tiền Cầu v1.1 🏸</div>
+            <div class="bill-footer-note">Hóa đơn được tạo tự động bởi App Tính Tiền Cầu v1.4 🏸</div>
         </div>
 
         <button class="btn-screenshot" id="btnSaveImg" onclick="luuHoaDonAnh()">
@@ -735,25 +735,45 @@ function tinhTien() {
 
     document.getElementById('ruleTextTiLe').innerText = textMoTaTiLe;
 
+    // Tính toán chi phí cơ sở gốc
     let mauSoSan = soNam + soNu + (0.5 * soNuaBuoi);
     let mauSoCau = soNam + (tiLeCauNu * soNu) + (0.5 * soNuaBuoi);
 
-    let tienSanNam = mauSoSan > 0 ? (tienSan / mauSoSan) : 0;
+    let tienSanMoiNguoi = mauSoSan > 0 ? (tienSan / mauSoSan) : 0;
     let tongTienCau = tienCau + tienCauLe;
-    let tienCauNam = mauSoCau > 0 ? (tongTienCau / mauSoCau) : 0;
+    let tienCauMoiNguoi = mauSoCau > 0 ? (tongTienCau / mauSoCau) : 0;
     
-    let tongNam = tienSanNam + tienCauNam;
-    let tongNu = tienSanNam + (tienCauNam * tiLeCauNu);
-    let tongNuaBuoi = tongNam * 0.5;
+    // Giá trị thô chưa làm tròn
+    let rawNam = tienSanMoiNguoi + tienCauMoiNguoi;
+    let rawNu = tienSanMoiNguoi + (tienCauMoiNguoi * tiLeCauNu);
 
-    let kNam = soNam > 0 ? Math.ceil(tongNam / 1000) : 0;
-    let kNu = soNu > 0 ? Math.floor(tongNu / 1000) : 0;
-    let kNuaBuoi = soNuaBuoi > 0 ? Math.floor(tongNuaBuoi / 1000) : 0;
+    let kNam = 0;
+    let kNu = 0;
+    let kNuaBuoi = 0;
 
+    // --- CẬP NHẬT ĐIỀU KIỆN ĐẶC BIỆT: SỐ LƯỢNG NGƯỜI (NỮ + NỬA BUỔI == NAM) ---
+    if (soNam > 0 && (soNu + soNuaBuoi) === soNam) {
+        // Nếu thỏa mãn số lượng Nữ + Nửa Buổi = Nam -> Tất cả ép làm tròn lên
+        kNam = Math.ceil(rawNam / 1000);
+        kNu = soNu > 0 ? Math.ceil(rawNu / 1000) : 0;
+        
+        // Nửa buổi lấy giá trị đã làm tròn của Nam chia đôi
+        kNuaBuoi = soNuaBuoi > 0 ? (kNam / 2) : 0;
+    } else {
+        // Mặc định: Nam làm tròn lên, Nữ làm tròn xuống
+        kNam = soNam > 0 ? Math.ceil(rawNam / 1000) : 0;
+        kNu = soNu > 0 ? Math.floor(rawNu / 1000) : 0;
+        
+        // Nửa buổi lấy giá trị đã làm tròn của Nam chia đôi
+        kNuaBuoi = soNuaBuoi > 0 ? (kNam / 2) : 0;
+    }
+
+    // Hiển thị ra bảng tổng hợp công khai
     document.getElementById('resNam').innerText = kNam + "K / người";
     document.getElementById('resNu').innerText = kNu + "K / người";
     document.getElementById('resNuaBuoi').innerText = kNuaBuoi + "K / người";
 
+    // Đổ dữ liệu đồng bộ vào hóa đơn chi tiết từng người để xuất ảnh
     let containerBill = document.getElementById('billDetailsBox');
     let btnSaveImg = document.getElementById('btnSaveImg');
     let tbodyBill = document.getElementById('billTableBody');
@@ -793,7 +813,7 @@ function tinhTien() {
             let chuoiNgay = layChuoiNgayDinhDang();
             titleBill.innerText = `💸 DANH SÁCH ĐÓNG TIỀN CHI TIẾT NGÀY ${chuoiNgay}`;
             containerBill.style.display = 'block'; 
-            btnSaveImg.style.display = 'flex'; // Hiển thị nút lưu ảnh hóa đơn màu cam
+            btnSaveImg.style.display = 'flex'; 
         } else {
             containerBill.style.display = 'none';
             btnSaveImg.style.display = 'none';
@@ -809,22 +829,17 @@ function luuHoaDonAnh() {
     let targetElement = document.getElementById('billDetailsBox');
     let chuoiNgay = layChuoiNgayDinhDang();
     
-    // Tạm thời ẩn phần viền cắt răng cưa nền trắng để chụp không bị lộ
     targetElement.style.boxShadow = 'none';
 
     html2canvas(targetElement, {
-        backgroundColor: '#fffbef', // Giữ nguyên màu nền ấm áp của bill
-        scale: 2, // Tăng gấp đôi độ phân giải giúp chữ sắc nét không bể khi gửi Zalo
+        backgroundColor: '#fffbef', 
+        scale: 2, 
         logging: false,
         useCORS: true
     }).then(function(canvas) {
-        // Khôi phục lại shadow sau khi chụp xong
         targetElement.style.boxShadow = '0 4px 15px rgba(0,0,0,0.03)';
         
-        // Chuyển canvas thành URL ảnh PNG
         let imgUrl = canvas.toDataURL("image/png");
-        
-        // Tạo một thẻ link ảo để kích hoạt hành động tải xuống tự động
         let downloadLink = document.createElement('a');
         downloadLink.href = imgUrl;
         downloadLink.download = `HoaDon_CauLong_${chuoiNgay}.png`;
