@@ -5,9 +5,33 @@
     <link class="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/505/505730.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/505/505730.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🏸 Tính Tiền Cầu Lông v1.1.1 🚀</title>
+    <title>🏸 Tính Tiền Cầu Lông v2.0 🚀</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDf3OZzCq6Dh0k_748klamwpIxS4tDAJ-E",
+            authDomain: "phtbadminton.firebaseapp.com",
+            projectId: "phtbadminton",
+            storageBucket: "phtbadminton.firebasestorage.app",
+            messagingSenderId: "861078516981",
+            appId: "1:861078516981:web:9c69295874d742358481bc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Expose to global scope
+        window._db = db;
+        window._fbFuncs = { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, setDoc };
+        window._firebaseReady = true;
+        window.dispatchEvent(new Event('firebaseReady'));
+    </script>
+
     <style>
         :root {
             --primary: #2e7d32;
@@ -19,337 +43,220 @@
             --pht-red: #d32f2f;
             --pht-gold: #ffd700;
         }
-
         body { 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background: var(--bg-gradient); 
-            padding: 15px; 
-            margin: 0; 
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 15px; margin: 0; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
             box-sizing: border-box;
         }
         .container { 
-            width: 100%;
-            max-width: 700px; 
-            background: #ffffff; 
-            padding: 20px; 
-            border-radius: 24px; 
+            width: 100%; max-width: 700px; background: #ffffff; 
+            padding: 20px; border-radius: 24px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
             border: 2px solid var(--primary-light);
-            box-sizing: border-box;
-            position: relative;
+            box-sizing: border-box; position: relative;
         }
-        
-        /* Khung Header Chung */
         .header-section {
-            position: relative;
-            text-align: center;
-            margin-bottom: 15px;
-            border-bottom: 2px dashed var(--primary-light);
-            padding-bottom: 35px;
+            position: relative; text-align: center; margin-bottom: 15px;
+            border-bottom: 2px dashed var(--primary-light); padding-bottom: 35px;
         }
         .app-title {
-            color: var(--primary);
-            font-size: 26px;
-            font-weight: 800;
-            margin: 5px 0 0 0;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            color: var(--primary); font-size: 26px; font-weight: 800;
+            margin: 5px 0 0 0; letter-spacing: 0.5px;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .author-info {
-            position: absolute;
-            right: 5px;
-            bottom: 4px;
-            text-align: right;
-            font-size: 9.5px; 
-            color: #8fa38b; 
-            line-height: 1.4;
+            position: absolute; right: 5px; bottom: 4px; text-align: right;
+            font-size: 9.5px; color: #8fa38b; line-height: 1.4;
         }
 
-        /* --- STYLE CHO KHU VỰC PHT --- */
+        /* Cloud sync indicator */
+        .cloud-status {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; padding: 3px 10px; border-radius: 20px;
+            margin-top: 6px; font-weight: bold;
+        }
+        .cloud-status.online { background: #e8f5e9; color: #2e7d32; }
+        .cloud-status.offline { background: #fff3e0; color: #e65100; }
+        .cloud-status.syncing { background: #e3f2fd; color: #1565c0; }
+        .cloud-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+        .cloud-dot.pulse { animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
         .pht-header {
             background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
-            padding: 15px;
-            border-radius: 16px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 6px 20px rgba(13, 71, 161, 0.3);
-            border: 2px solid var(--pht-gold);
-            margin-bottom: 20px;
+            padding: 15px; border-radius: 16px; text-align: center; color: white;
+            box-shadow: 0 6px 20px rgba(13,71,161,0.3);
+            border: 2px solid var(--pht-gold); margin-bottom: 20px;
         }
         .pht-title {
-            font-size: 28px;
-            font-weight: 900;
-            color: var(--pht-gold);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.4);
-            letter-spacing: 1px;
-            margin: 0;
+            font-size: 28px; font-weight: 900; color: var(--pht-gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6); letter-spacing: 1px; margin: 0;
         }
         .pht-subtitle {
-            font-size: 13px;
-            color: #e3f2fd;
-            margin-top: 5px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-size: 13px; color: #e3f2fd; margin-top: 5px;
+            font-weight: bold; text-transform: uppercase; letter-spacing: 2px;
         }
 
-        /* Quản lý các màn hình */
         .page { display: none; }
         .page.active { display: block; }
 
-        /* Cổng vào phòng riêng - Button PHT */
         .btn-pht-gate {
             background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-            color: white;
-            border: 2px solid #b71c1c;
-            padding: 10px 16px;
-            font-size: 13.5px;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            margin-bottom: 15px;
+            color: white; border: 2px solid #b71c1c; padding: 10px 16px;
+            font-size: 13.5px; font-weight: bold; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(211,47,47,0.3);
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.2s ease; margin-bottom: 15px;
         }
-        .btn-pht-gate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(211, 47, 47, 0.4);
-        }
+        .btn-pht-gate:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(211,47,47,0.4); }
 
-        /* Grid danh sách thành viên */
-        .member-grid {
-            display: flex;
-            gap: 15px;
-        }
-        .member-col {
-            flex: 1;
-            min-width: 0;
-        }
-        
+        .member-grid { display: flex; gap: 15px; }
+        .member-col { flex: 1; min-width: 0; }
         .member-row {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-bottom: 8px;
-            background: #fcfcfc;
-            padding: 5px;
-            border-radius: 8px;
-            border: 1px solid #eef2ee;
+            display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
+            background: #fcfcfc; padding: 5px; border-radius: 8px; border: 1px solid #eef2ee;
         }
-        
-        /* Hàng danh sách PHT tích chọn nhanh */
         .pht-row {
-            background: #f5f7fa;
-            border: 1px solid #cfd8dc;
-            padding: 6px 10px;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
+            background: #f5f7fa; border: 1px solid #cfd8dc;
+            padding: 6px 10px; cursor: pointer; user-select: none; transition: all 0.2s ease;
         }
-        .pht-row:hover {
-            background: #eceff1;
-            border-color: #b0bec5;
-        }
-        .pht-row.selected {
-            background: #e3f2fd;
-            border-color: #64b5f6;
-            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.15);
-        }
-        .pht-checkbox {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        .pht-name-lbl {
-            font-weight: 600;
-            font-size: 13.5px;
-            color: #37474f;
-            flex: 1;
-            padding-left: 4px;
-        }
-        .pht-gender-badge {
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            color: white;
-        }
+        .pht-row:hover { background: #eceff1; border-color: #b0bec5; }
+        .pht-row.selected { background: #e3f2fd; border-color: #64b5f6; box-shadow: 0 2px 6px rgba(33,150,243,0.15); }
+        .pht-checkbox { width: 18px; height: 18px; cursor: pointer; }
+        .pht-name-lbl { font-weight: 600; font-size: 13.5px; color: #37474f; flex: 1; padding-left: 4px; }
+        .pht-gender-badge { font-size: 12px; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: white; }
         .badge-nam { background-color: var(--nam-color); }
         .badge-nu { background-color: var(--nu-color); }
 
-        /* Khung khu vực vãng lai */
         .pht-vl-section {
-            margin-top: 15px;
-            background: #fff3e0;
-            padding: 12px;
-            border-radius: 14px;
-            border: 1px dashed #ffb74d;
+            margin-top: 15px; background: #fff3e0; padding: 12px;
+            border-radius: 14px; border: 1px dashed #ffb74d;
         }
-        .pht-vl-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #e65100;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .pht-vl-row {
-            background: #ffffff;
-            border: 1px solid #ffe0b2;
-        }
+        .pht-vl-title { font-size: 13px; font-weight: bold; color: #e65100; margin-bottom: 10px; text-transform: uppercase; }
+        .pht-vl-row { background: #ffffff; border: 1px solid #ffe0b2; }
 
-        /* --- STYLE CHO KHU VỰC LỊCH SỬ PHT --- */
+        /* History */
         .history-section {
-            margin-top: 20px;
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 16px;
-            border: 1px solid #e0e0e0;
+            margin-top: 20px; background: #f5f5f5; padding: 15px;
+            border-radius: 16px; border: 1px solid #e0e0e0;
         }
         .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
         }
-        .history-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #0d47a1;
-            text-transform: uppercase;
-        }
+        .history-title { font-size: 14px; font-weight: bold; color: #0d47a1; text-transform: uppercase; }
         .btn-host-auth {
-            background: #1976d2; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: #1976d2; color: white; border: none; padding: 5px 10px;
+            font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;
         }
-        .btn-host-auth.authed {
-            background: #388e3c;
-        }
+        .btn-host-auth.authed { background: #388e3c; }
         .btn-clear-all-hist {
-            background: #e57373; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none;
+            background: #e57373; color: white; border: none; padding: 5px 10px;
+            font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none;
         }
         .history-list {
-            max-height: 200px;
-            overflow-y: auto;
-            background: white;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            padding: 5px;
+            max-height: 220px; overflow-y: auto; background: white;
+            border-radius: 10px; border: 1px solid #ddd; padding: 5px;
         }
         .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            font-size: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px; border-bottom: 1px solid #eee; font-size: 12px;
         }
         .history-item:last-child { border-bottom: none; }
         .hist-date { font-weight: bold; color: #333; }
         .hist-money { color: #c62828; font-weight: bold; }
         .hist-actions { display: flex; gap: 5px; }
-        .btn-hist-action {
-            border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold;
-        }
-        .btn-view-hist { background: #bbdefb; color: #0d47a1; cursor: pointer; }
+        .btn-hist-action { border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-view-hist { background: #bbdefb; color: #0d47a1; }
         .btn-del-hist { background: #ffcdd2; color: #b71c1c; display: none; }
         .no-history { text-align: center; color: #999; padding: 15px; font-size: 12.5px; font-style: italic; }
 
-        .member-no {
-            font-size: 11px;
-            font-weight: bold;
-            color: #999;
-            width: 18px;
-            text-align: center;
+        /* Loading spinner overlay */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.85); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
+            font-size: 14px; color: #1565c0; font-weight: bold; gap: 10px;
         }
-        .input-name-wrapper {
-            position: relative;
-            flex: 1;
-            display: flex;
-            align-items: center;
+        .spinner {
+            width: 36px; height: 36px; border: 4px solid #e3f2fd;
+            border-top: 4px solid #1565c0; border-radius: 50%; animation: spin 0.8s linear infinite;
         }
-        .member-name {
-            width: 100%;
-            padding: 6px 22px 6px 6px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 12.5px;
-            box-sizing: border-box;
-        }
-        .clear-btn {
-            position: absolute; right: 5px; background: none; border: none; color: #ccc; cursor: pointer; font-size: 10px; display: none;
-        }
-        .input-name-wrapper:hover .clear-btn { display: block; }
-        
-        .type-options {
-            display: flex; background: #eee; padding: 2px; border-radius: 6px; gap: 1px;
-        }
-        .type-options label {
-            cursor: pointer; padding: 4px 6px; border-radius: 4px; font-size: 11px; display: flex; align-items: center; justify-content: center;
-        }
-        .type-options input[type="radio"] { display: none; }
-        .type-options input[type="radio"]:checked + label.lbl-nam { background: var(--nam-color); color: white;}
-        .type-options input[type="radio"]:checked + label.lbl-nu { background: var(--nu-color); color: white;}
-        .type-options input[type="radio"]:checked + label.lbl-nb { background: var(--nb-color); color: white;}
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Ô chọn Ngày */
+        /* Toast notification */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #323232; color: white; padding: 10px 20px; border-radius: 20px;
+            font-size: 13px; z-index: 9999; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
+
+        .member-no { font-size: 11px; font-weight: bold; color: #999; width: 18px; text-align: center; }
+        .input-name-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
+        .member-name { width: 100%; padding: 6px 22px 6px 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 12.5px; box-sizing: border-box; }
+        .clear-btn { position: absolute; right: 5px; background: none; border: none; color: #ccc; cursor: pointer; font-size: 10px; display: none; }
+        .input-name-wrapper:hover .clear-btn { display: block; }
+        .type-options { display: flex; background: #eee; padding: 2px; border-radius: 6px; gap: 1px; }
+        .type-options label { cursor: pointer; padding: 4px 6px; border-radius: 4px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+        .type-options input[type="radio"] { display: none; }
+        .type-options input[type="radio"]:checked + label.lbl-nam { background: var(--nam-color); color: white; }
+        .type-options input[type="radio"]:checked + label.lbl-nu { background: var(--nu-color); color: white; }
+        .type-options input[type="radio"]:checked + label.lbl-nb { background: var(--nb-color); color: white; }
+
         .date-container {
-            margin-top: 15px; padding: 10px 12px; background: #f1f8e9; border-radius: 12px; border: 1px solid #c8e6c9; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+            margin-top: 15px; padding: 10px 12px; background: #f1f8e9; border-radius: 12px;
+            border: 1px solid #c8e6c9; display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 8px;
         }
-        .date-container.pht-date {
-            background: #e8eaf6; border-color: #c5cae9;
-        }
+        .date-container.pht-date { background: #e8eaf6; border-color: #c5cae9; }
         .date-container label { font-size: 13px; font-weight: bold; color: var(--primary); }
         .date-container.pht-date label { color: #1a237e; }
         .date-container input[type="date"] { padding: 6px 10px; border: 1px solid var(--primary-light); border-radius: 8px; font-size: 13px; outline: none; background: white; }
 
-        /* Nút điều hướng */
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-main {
-            flex: 1; padding: 12px; background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25); transition: all 0.2s;
+            flex: 1; padding: 12px; background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white; border: none; border-radius: 12px; font-size: 15px;
+            font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(46,125,50,0.25); transition: all 0.2s;
         }
         .btn-main.pht-btn-main {
             background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
-            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+            box-shadow: 0 4px 12px rgba(21,101,192,0.3);
         }
         .btn-sub { padding: 12px 18px; background: #cfd8dc; color: #37474f; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        
         .btn-screenshot {
-            width: 100%; margin-top: 10px; padding: 11px; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 6px;
+            width: 100%; margin-top: 10px; padding: 11px;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white; border: none; border-radius: 12px; font-size: 14px;
+            font-weight: bold; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 6px;
         }
         .btn-save-history {
-            width: 100%; margin-top: 10px; padding: 11px; background: linear-gradient(135deg, #2196f3 0%, #0d47a1 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
+            width: 100%; margin-top: 10px; padding: 11px;
+            background: linear-gradient(135deg, #2196f3 0%, #0d47a1 100%);
+            color: white; border: none; border-radius: 12px; font-size: 14px;
+            font-weight: bold; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 6px;
+            box-shadow: 0 4px 12px rgba(13,71,161,0.2);
         }
-
         button:active { transform: scale(0.97); }
 
-        /* Giao diện Màn hình 2 */
         .row { display: flex; gap: 15px; }
         .col { flex: 1; min-width: 0; }
         .section-title {
-            font-size: 12.5px; color: var(--primary); margin: 0 0 12px 0; font-weight: bold; text-transform: uppercase; border-left: 3.5px solid #4caf50; padding-left: 6px; letter-spacing: 0.3px;
+            font-size: 12.5px; color: var(--primary); margin: 0 0 12px 0;
+            font-weight: bold; text-transform: uppercase;
+            border-left: 3.5px solid #4caf50; padding-left: 6px; letter-spacing: 0.3px;
         }
-        .section-title.pht-st {
-            color: #1a237e; border-left-color: #1a237e;
-        }
+        .section-title.pht-st { color: #1a237e; border-left-color: #1a237e; }
         .col label { font-weight: bold; display: block; color: #4f5b4d; font-size: 12px; margin-bottom: 4px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .icon { position: absolute; left: 10px; font-size: 14px; }
         .col input { width: 100%; padding: 8px 8px 8px 32px; box-sizing: border-box; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; background-color: #fafafa; }
         .col input:focus { border-color: #81c784; background-color: #fff; outline: none; }
 
-        /* Khung chọn tỉ lệ tiền cầu */
         .ratio-container { margin: 12px 0; padding: 10px 12px; background: #f9f9f9; border: 1px solid #e3ede3; border-radius: 12px; }
         .ratio-title { font-size: 12px; font-weight: bold; color: #4f5b4d; margin-bottom: 8px; }
         .ratio-options { display: flex; background: #eef2ee; padding: 3px; border-radius: 8px; gap: 4px; }
@@ -357,19 +264,21 @@
         .ratio-options input[type="radio"] { display: none; }
         .ratio-options input[type="radio"]:checked + label { background: var(--primary); color: white; }
 
-        /* Bảng tổng hợp */
         .result { margin-top: 15px; padding: 12px; background: #f1f8e9; border-radius: 12px; border: 1px solid #c8e6c9; }
         .result-title { font-weight: bold; color: #33691e; margin-bottom: 8px; text-align: center; font-size: 13px; }
         .result p { margin: 6px 0; font-size: 13.5px; color: #333; display: flex; justify-content: space-between; border-bottom: 1px dotted #c8e6c9; padding-bottom: 4px; }
         .result p:last-child { border-bottom: none; }
         .price { font-weight: bold; color: #c62828; font-size: 14.5px; }
 
-        /* Khung hóa đơn chi tiết */
         .bill-details-box {
-            margin-top: 18px; background: #fffbef; border-radius: 12px 12px 0 0; border: 1px solid #ffe082; border-bottom: none; position: relative; padding: 15px 15px 25px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: none; 
+            margin-top: 18px; background: #fffbef; border-radius: 12px 12px 0 0;
+            border: 1px solid #ffe082; border-bottom: none; position: relative;
+            padding: 15px 15px 25px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: none;
         }
         .bill-details-box::after {
-            content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 10px; background-size: 12px 10px; background-repeat: repeat-x; background-image: linear-gradient(-45deg, #ffffff 5px, transparent 0), linear-gradient(45deg, #ffffff 5px, transparent 0);
+            content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 10px;
+            background-size: 12px 10px; background-repeat: repeat-x;
+            background-image: linear-gradient(-45deg, #ffffff 5px, transparent 0), linear-gradient(45deg, #ffffff 5px, transparent 0);
         }
         .bill-title { font-weight: 800; color: #795548; margin-bottom: 12px; text-align: center; font-size: 13px; text-transform: uppercase; border-bottom: 2px dashed #ffe082; padding-bottom: 8px; }
         .bill-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -377,26 +286,20 @@
         .bill-table td { padding: 7px 6px; border-bottom: 1px dashed #fff1cb; color: #333; }
         .bill-table tr:last-child td { border-bottom: none; }
         .bill-price { font-weight: bold; color: #d84315; text-align: right; font-size: 13.5px; }
-        
-        /* Checkbox đóng tiền trên hóa đơn */
         .bill-check-td { text-align: center; width: 60px; }
         .chk-da-dong-tien { width: 16px; height: 16px; cursor: pointer; }
 
-        /* Khung quy tắc */
         .rule-section { margin-top: 15px; padding: 12px; background: #fafafa; border-radius: 12px; border: 1px dashed #b2dfdb; }
         .rule-title { font-size: 12px; font-weight: bold; color: #00796b; margin-bottom: 6px; }
         .rule-section ul { margin: 0; padding-left: 15px; }
         .rule-section li { font-size: 11.5px; color: #555; margin-bottom: 4px; line-height: 1.4; }
 
-        /* Kiểu nút chuyển đổi Nửa buổi trên danh sách PHT */
         .pht-nb-toggle {
-            background: #fff; border: 1px solid #ccc; font-size: 11px; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;
+            background: #fff; border: 1px solid #ccc; font-size: 11px;
+            padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;
         }
-        .pht-nb-toggle.active {
-            background: var(--nb-color); border-color: #f57c00; color: #3e2723;
-        }
+        .pht-nb-toggle.active { background: var(--nb-color); border-color: #f57c00; color: #3e2723; }
 
-        /* 📱 RESPONSIVE */
         @media (max-width: 520px) {
             .member-grid, .row { flex-direction: column; gap: 0; }
             .col { margin-bottom: 15px; }
@@ -407,12 +310,28 @@
 </head>
 <body>
 
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div id="loadingText">☁️ Đang kết nối Firebase...</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <div class="container">
     
+    <!-- PAGE 1: Màn hình công khai -->
     <div id="page1" class="page active">
         <div class="header-section">
             <div class="app-title">🏸 TÍNH TIỀN CẦU 🚀</div>
-            <div class="author-info">Created by Thi Nguyen<br>Version 1.1.1<br>© 2026</div>
+            <div style="text-align:center; margin-top:4px;">
+                <span class="cloud-status offline" id="cloudStatusMain">
+                    <span class="cloud-dot" id="cloudDotMain"></span>
+                    <span id="cloudTextMain">Đang kết nối...</span>
+                </span>
+            </div>
+            <div class="author-info">Created by Thi Nguyen<br>Version 2.0<br>© 2026</div>
         </div>
 
         <div style="text-align: center;">
@@ -422,7 +341,6 @@
         </div>
 
         <div class="section-title">📝 Nhập danh sách thành viên tham gia</div>
-        
         <div class="member-grid" id="memberGridContainer">
             <div class="member-col" id="colLeft"></div>
             <div class="member-col" id="colRight"></div>
@@ -439,14 +357,20 @@
         </div>
     </div>
 
+    <!-- PAGE PHT -->
     <div id="pagePHT" class="page">
         <div class="pht-header">
             <div class="pht-title">🔥 PHT OPEN BADMINTON CLUB 🔥</div>
-            <div class="pht-subtitle">👑 Hệ thống quản lý & Điểm danh thành viên v1.1.1 👑</div>
+            <div class="pht-subtitle">👑 Hệ thống quản lý & Điểm danh thành viên v2.0 👑</div>
+            <div style="margin-top:6px;">
+                <span class="cloud-status offline" id="cloudStatusPHT">
+                    <span class="cloud-dot" id="cloudDotPHT"></span>
+                    <span id="cloudTextPHT">Đang kết nối...</span>
+                </span>
+            </div>
         </div>
 
         <div class="section-title pht-st">👥 Chọn thành viên cố định đi đánh hôm nay</div>
-        
         <div class="member-grid" id="phtGridContainer">
             <div class="member-col" id="phtColLeft"></div>
             <div class="member-col" id="phtColRight"></div>
@@ -467,14 +391,15 @@
 
         <div class="history-section">
             <div class="history-header">
-                <div class="history-title">📅 Lịch sử hóa đơn PHT</div>
-                <div>
-                    <button class="btn-host-auth" id="btnHostAuth" onclick="xacThucQuyenHost()">🔐 Mở khóa quyền Host</button>
-                    <button class="btn-clear-all-hist" id="btnClearAllHist" onclick="xoaToanBoLichSuPHT()">🗑️ Xóa hết lịch sử</button>
+                <div class="history-title">☁️ Lịch sử hóa đơn PHT (Cloud)</div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button class="btn-host-auth" id="btnHostAuth" onclick="xacThucQuyenHost()">🔐 Mở khóa Host</button>
+                    <button class="btn-clear-all-hist" id="btnClearAllHist" onclick="xoaToanBoLichSuPHT()">🗑️ Xóa hết</button>
                 </div>
             </div>
             <div class="history-list" id="phtHistoryContainer">
-                </div>
+                <div class="no-history">☁️ Đang tải lịch sử từ cloud...</div>
+            </div>
         </div>
 
         <div class="btn-group">
@@ -483,6 +408,7 @@
         </div>
     </div>
 
+    <!-- PAGE 3: Tính tiền -->
     <div id="page3" class="page">
         <div id="phtMiniHeader" style="display:none; margin-bottom:15px;"></div>
 
@@ -493,27 +419,26 @@
                     <label>Tiền sân:</label>
                     <div class="input-wrapper"><span class="icon">🏟️</span><input type="number" id="txtTienSan" value="0" onclick="this.select();"></div>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top:8px;">
                     <label>Tiền cầu (hộp):</label>
                     <div class="input-wrapper"><span class="icon">📦</span><input type="number" id="txtTienCau" value="0" onclick="this.select();"></div>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top:8px;">
                     <label>Tiền cầu lẻ:</label>
                     <div class="input-wrapper"><span class="icon">🏸</span><input type="number" id="txtTienCauLe" value="0" onclick="this.select();"></div>
                 </div>
             </div>
-
             <div class="col">
                 <div class="section-title" id="titleThanhVien">🧑‍🤝‍🧑 Thành viên</div>
                 <div class="input-group">
                     <label>Số lượng Nam:</label>
                     <div class="input-wrapper"><span class="icon">👦</span><input type="number" id="txtSoLuongNam" value="0" onclick="this.select();"></div>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top:8px;">
                     <label>Số lượng Nữ:</label>
                     <div class="input-wrapper"><span class="icon">👧</span><input type="number" id="txtSoLuongNu" value="0" onclick="this.select();"></div>
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top:8px;">
                     <label>Nửa buổi (Về/Trễ):</label>
                     <div class="input-wrapper"><span class="icon">🕒</span><input type="number" id="txtVeSomToiTre" value="0" onclick="this.select();"></div>
                 </div>
@@ -532,7 +457,7 @@
             </div>
         </div>
 
-        <button class="btn-main" style="width: 100%;" id="btnActionTinhTien" onclick="tinhTien()">🌸 TÍNH TIỀN NGAY 🌸</button>
+        <button class="btn-main" style="width: 100%;" onclick="tinhTien()">🌸 TÍNH TIỀN NGAY 🌸</button>
 
         <div class="result">
             <div class="result-title">📋 BẢNG CHIA TIỀN TỔNG HỢP</div>
@@ -546,21 +471,19 @@
             <table class="bill-table">
                 <thead>
                     <tr>
-                        <th>Tên</th>
-                        <th>Phân loại</th>
-                        <th style="text-align: right;">Số tiền</th>
-                        <th class="bill-check-td" id="thDaThuTien" style="display:none; text-align: center;">Đã thu</th>
+                        <th>Tên</th><th>Phân loại</th>
+                        <th style="text-align:right;">Số tiền</th>
+                        <th class="bill-check-td" id="thDaThuTien" style="display:none; text-align:center;">Đã thu</th>
                     </tr>
                 </thead>
                 <tbody id="billTableBody"></tbody>
             </table>
-            <div class="bill-footer-note" id="billFooterText">Hóa đơn được tạo tự động bởi App Tính Tiền Cầu v1.1.1 🏸</div>
+            <div style="margin-top:10px; font-size:11px; color:#999; text-align:center;" id="billFooterText"></div>
         </div>
 
         <button class="btn-save-history" id="btnSaveToHistory" onclick="yeuCauLuuLichSuHost()">
-            💾 LƯU VÀO LỊCH SỬ HÓA ĐƠN (HOST ONLY)
+            ☁️ LƯU BILL LÊN CLOUD (HOST ONLY)
         </button>
-
         <button class="btn-screenshot" id="btnSaveImg" onclick="luuHoaDonAnh()">
             📸 LƯU HÓA ĐƠN DẠNG ẢNH (.PNG)
         </button>
@@ -569,22 +492,24 @@
             <div class="rule-title">📜 QUY TẮC TÍNH TOÁN:</div>
             <ul>
                 <li><b>Tiền sân:</b> Nữ chia đều bằng Nam.</li>
-                <li><b>Tiền cầu:</b> Nữ chịu khoảng <b id="ruleTextTiLe">70% (~0.67)</b> so với Nam.</li>
+                <li><b>Tiền cầu:</b> Nữ chịu khoảng <b id="ruleTextTiLe">67% (0.67)</b> so với Nam.</li>
                 <li><b>Nửa buổi:</b> Chịu cố định <b>50%</b> tổng tiền của Nam.</li>
             </ul>
         </div>
 
         <div class="btn-group">
-            <button class="btn-sub" style="width: 100%;" id="btnBackToEdit" onclick="quayLaiSuaDanhSach()">⬅️ Quay lại sửa danh sách</button>
+            <button class="btn-sub" style="width:100%;" onclick="quayLaiSuaDanhSach()">⬅️ Quay lại sửa danh sách</button>
         </div>
     </div>
 </div>
 
 <script>
-let loaiHinhLuong = "co_ten"; // co_ten, bo_qua, pht_club
-let laQuyenHost = false; // Trạng thái xác thực Host
-let dangXemNgayLichSu = null; // Lưu ngày đang xem lại
-let boNhoTamDanhSachChiTiet = []; // Dùng để lưu tạm trước khi Host quyết định nhấn nút Save History
+// ===================== STATE =====================
+let loaiHinhLuong = "co_ten";
+let laQuyenHost = false;
+let dangXemNgayLichSu = null;
+let boNhoTamDanhSachChiTiet = [];
+let dangXemDocId = null; // Firestore document ID đang xem
 
 const danhSachGocPHT = [
     { ten: "Thi", gioiTinh: "nam" }, { ten: "Thư", gioiTinh: "nu" },
@@ -594,18 +519,66 @@ const danhSachGocPHT = [
     { ten: "Hải", gioiTinh: "nam" }, { ten: "Cậu Hoà", gioiTinh: "nam" },
     { ten: "Đào", gioiTinh: "nu" }, { ten: "Khoa", gioiTinh: "nam" },
     { ten: "Hiếu", gioiTinh: "nam" }, { ten: "Phúc", gioiTinh: "nam" },
-    { ten: "Thanh", gioiTinh: "nu" }, { hotel: "Lộc", gioiTinh: "nam", ten: "Lộc" },
+    { ten: "Thanh", gioiTinh: "nu" }, { ten: "Lộc", gioiTinh: "nam" },
     { ten: "Thọ", gioiTinh: "nam" }, { ten: "Lam", gioiTinh: "nam" },
     { ten: "Loan", gioiTinh: "nu" }, { ten: "Minh", gioiTinh: "nam" },
     { ten: "Hưng", gioiTinh: "nam" }, { ten: "Hương", gioiTinh: "nu" },
     { ten: "Bình", gioiTinh: "nu" }
 ];
+let dataPHT = [];
+let dataVangLaiPHT = [];
 
-let dataPHT = []; 
-let dataVangLaiPHT = []; 
+// ===================== FIREBASE HELPERS =====================
+function getDB() { return window._db; }
+function getFB() { return window._fbFuncs; }
+
+function showToast(msg, duration = 2500) {
+    let t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function showLoading(msg = "Đang xử lý...") {
+    document.getElementById('loadingText').textContent = msg;
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+function setCloudStatus(status) {
+    // status: 'online' | 'offline' | 'syncing'
+    ['Main', 'PHT'].forEach(suffix => {
+        let el = document.getElementById('cloud' + 'Status' + suffix);
+        let dot = document.getElementById('cloud' + 'Dot' + suffix);
+        let txt = document.getElementById('cloud' + 'Text' + suffix);
+        if (!el) return;
+        el.className = 'cloud-status ' + status;
+        dot.className = 'cloud-dot' + (status === 'syncing' ? ' pulse' : '');
+        txt.textContent = status === 'online' ? '☁️ Đã kết nối Cloud' : status === 'syncing' ? '🔄 Đang đồng bộ...' : '⚠️ Mất kết nối';
+    });
+}
+
+// ===================== INIT =====================
+window.addEventListener('firebaseReady', function() {
+    hideLoading();
+    setCloudStatus('online');
+    taiLichSuGiaoDienPHT();
+});
+
+// Timeout nếu Firebase không load được
+setTimeout(() => {
+    if (!window._firebaseReady) {
+        hideLoading();
+        setCloudStatus('offline');
+        showToast('⚠️ Không kết nối được Firebase. Kiểm tra mạng!', 4000);
+    }
+}, 8000);
 
 window.onload = function() {
-    // 1. Khởi tạo 30 ô cho màn hình công khai
+    // Màn hình 1: 30 ô công khai
     let colLeft = document.getElementById('colLeft');
     let colRight = document.getElementById('colRight');
     for (let i = 1; i <= 30; i++) {
@@ -624,30 +597,29 @@ window.onload = function() {
                     <input type="radio" name="type_${i}" id="nb_${i}" value="nua_buoi">
                     <label for="nb_${i}" class="lbl-nb">🕒</label>
                 </div>
-            </div>
-        `;
+            </div>`;
         if (i <= 15) colLeft.innerHTML += rowHtml; else colRight.innerHTML += rowHtml;
     }
 
-    // 2. Khởi tạo danh sách PHT cố định
+    // Danh sách PHT cố định
     let phtLeft = document.getElementById('phtColLeft');
     let phtRight = document.getElementById('phtColRight');
     danhSachGocPHT.forEach((item, index) => {
         dataPHT.push({ ten: item.ten, gioiTinh: item.gioiTinh, diDanh: false, nuaBuoi: false });
-        
-        let badgeGioiTinh = item.gioiTinh === "nam" ? `<span class="pht-gender-badge badge-nam">👦 Nam</span>` : `<span class="pht-gender-badge badge-nu">👧 Nữ</span>`;
-        let phtRowHtml = `
+        let badge = item.gioiTinh === "nam"
+            ? `<span class="pht-gender-badge badge-nam">👦 Nam</span>`
+            : `<span class="pht-gender-badge badge-nu">👧 Nữ</span>`;
+        let html = `
             <div class="member-row pht-row" id="pht_row_${index}" onclick="clickHangPHT(${index}, event)">
                 <input type="checkbox" class="pht-checkbox" id="pht_chk_${index}" onclick="event.stopPropagation(); clickCheckboxPHT(${index});">
                 <span class="pht-name-lbl">${item.ten}</span>
-                ${badgeGioiTinh}
+                ${badge}
                 <button class="pht-nb-toggle" id="pht_nb_${index}" onclick="event.stopPropagation(); toggleNuaBuoiPHT(${index})">🕒 Nửa buổi</button>
-            </div>
-        `;
-        if (index < 12) phtLeft.innerHTML += phtRowHtml; else phtRight.innerHTML += phtRowHtml;
+            </div>`;
+        if (index < 12) phtLeft.innerHTML += html; else phtRight.innerHTML += html;
     });
 
-    // 3. Khởi tạo 7 ô trống khách vãng lai
+    // 7 ô khách vãng lai
     let vlLeft = document.getElementById('phtVlColLeft');
     let vlRight = document.getElementById('phtVlColRight');
     for (let i = 1; i <= 7; i++) {
@@ -665,219 +637,252 @@ window.onload = function() {
                     <input type="radio" name="pht_vl_type_${i}" id="pht_vl_nb_${i}" value="nua_buoi">
                     <label for="pht_vl_nb_${i}" class="lbl-nb">🕒</label>
                 </div>
-            </div>
-        `;
+            </div>`;
         if (i <= 4) vlLeft.innerHTML += vlHtml; else vlRight.innerHTML += vlHtml;
     }
 
-    // Mặc định ngày hôm nay
-    let hômNay = new Date().toISOString().split('T')[0];
-    document.getElementById('txtNgayTap').value = hômNay;
-    document.getElementById('txtNgayTapPHT').value = hômNay;
-
-    // Tải lịch sử lưu trữ từ máy lên giao diện
-    taiLichSuGiaoDienPHT();
+    let homNay = new Date().toISOString().split('T')[0];
+    document.getElementById('txtNgayTap').value = homNay;
+    document.getElementById('txtNgayTapPHT').value = homNay;
 };
 
-// --- QUẢN LÝ QUYỀN HOST ---
+// ===================== FIREBASE CLOUD HISTORY =====================
+async function taiLichSuGiaoDienPHT() {
+    let container = document.getElementById('phtHistoryContainer');
+    if (!window._firebaseReady) {
+        container.innerHTML = `<div class="no-history">⚠️ Chưa kết nối Firebase.</div>`;
+        return;
+    }
+
+    try {
+        setCloudStatus('syncing');
+        const db = getDB();
+        const { collection, getDocs, query, orderBy } = getFB();
+        const q = query(collection(db, 'pht_bills'), orderBy('timestamp', 'desc'));
+        const snapshot = await getDocs(q);
+        setCloudStatus('online');
+
+        if (snapshot.empty) {
+            container.innerHTML = `<div class="no-history">☁️ Chưa có hóa đơn nào trên cloud.</div>`;
+            return;
+        }
+
+        container.innerHTML = "";
+        snapshot.forEach(docSnap => {
+            let hist = docSnap.data();
+            let docId = docSnap.id;
+            let tongTien = (hist.tienSan || 0) + (hist.tienCau || 0) + (hist.tienCauLe || 0);
+            let styleDel = laQuyenHost ? `style="display:inline-block;"` : `style="display:none;"`;
+
+            container.innerHTML += `
+                <div class="history-item">
+                    <div>
+                        <span class="hist-date">📅 ${hist.ngay}</span> — 
+                        <span>Tổng: <b class="hist-money">${tongTien.toLocaleString()}đ</b></span>
+                        <span style="color:#666; font-size:11px;"> (${hist.soNam || 0}Nam / ${hist.soNu || 0}Nữ / ${hist.soNuaBuoi || 0}NB)</span>
+                    </div>
+                    <div class="hist-actions">
+                        <button class="btn-hist-action btn-view-hist" onclick="xemLaiDonLichSu('${docId}')">👁️ Xem</button>
+                        <button class="btn-hist-action btn-del-hist" ${styleDel} onclick="xoaDonLichSuPHT('${docId}')">❌</button>
+                    </div>
+                </div>`;
+        });
+    } catch (err) {
+        setCloudStatus('offline');
+        container.innerHTML = `<div class="no-history">❌ Lỗi tải lịch sử: ${err.message}</div>`;
+    }
+}
+
+async function xemLaiDonLichSu(docId) {
+    if (!window._firebaseReady) { showToast('⚠️ Chưa kết nối Firebase!'); return; }
+    showLoading('☁️ Đang tải hóa đơn...');
+    try {
+        const db = getDB();
+        const { doc, getDocs, collection, query, orderBy } = getFB();
+        // Lấy document theo ID
+        const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const docSnap = await getDoc(doc(db, 'pht_bills', docId));
+        hideLoading();
+        if (!docSnap.exists()) { showToast('❌ Không tìm thấy hóa đơn!'); return; }
+
+        let hist = docSnap.data();
+        dangXemNgayLichSu = hist.ngay;
+        dangXemDocId = docId;
+        boNhoTamDanhSachChiTiet = hist.danhSachChiTiet || [];
+
+        document.getElementById('txtTienSan').value = hist.tienSan || 0;
+        document.getElementById('txtTienCau').value = hist.tienCau || 0;
+        document.getElementById('txtTienCauLe').value = hist.tienCauLe || 0;
+        document.getElementById('txtSoLuongNam').value = hist.soNam || 0;
+        document.getElementById('txtSoLuongNu').value = hist.soNu || 0;
+        document.getElementById('txtVeSomToiTre').value = hist.soNuaBuoi || 0;
+        loaiHinhLuong = "pht_club";
+
+        document.getElementById('phtMiniHeader').style.display = "block";
+        document.getElementById('phtMiniHeader').innerHTML = `
+            <div class="pht-header" style="padding:8px; margin-bottom:0; background:linear-gradient(135deg, #43a047, #1b5e20); border-color:#fff;">
+                <div class="pht-title" style="font-size:16px; color:#fff;">👁️ XEM LẠI LỊCH SỬ NGÀY ${hist.ngay}</div>
+            </div>`;
+
+        tinhTien(true, hist.danhSachChiTiet);
+        chuyenTrang(3, false);
+    } catch (err) {
+        hideLoading();
+        showToast('❌ Lỗi: ' + err.message);
+    }
+}
+
+async function yeuCauLuuLichSuHost() {
+    if (!laQuyenHost) { showToast('🔒 Chỉ Host mới được lưu bill!'); return; }
+    if (!window._firebaseReady) { showToast('⚠️ Chưa kết nối Firebase!'); return; }
+
+    let tienSan = parseFloat(document.getElementById('txtTienSan').value) || 0;
+    let tienCau = parseFloat(document.getElementById('txtTienCau').value) || 0;
+    let tienCauLe = parseFloat(document.getElementById('txtTienCauLe').value) || 0;
+    if (tienSan > 0 && tienSan < 10000) tienSan *= 1000;
+    if (tienCau > 0 && tienCau < 10000) tienCau *= 1000;
+    if (tienCauLe > 0 && tienCauLe < 10000) tienCauLe *= 1000;
+
+    let soNam = parseFloat(document.getElementById('txtSoLuongNam').value) || 0;
+    let soNu = parseFloat(document.getElementById('txtSoLuongNu').value) || 0;
+    let soNuaBuoi = parseFloat(document.getElementById('txtVeSomToiTre').value) || 0;
+    let chuoiNgay = dangXemNgayLichSu || layChuoiNgayDinhDang();
+
+    showLoading('☁️ Đang lưu lên cloud...');
+    try {
+        const db = getDB();
+        const { collection, addDoc, getDocs, query, where, deleteDoc, doc } = getFB();
+        const { where: fbWhere } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+        // Kiểm tra trùng ngày — xóa bản cũ nếu có
+        const q = query(collection(db, 'pht_bills'), fbWhere('ngay', '==', chuoiNgay));
+        const snap = await getDocs(q);
+        for (let d of snap.docs) { await deleteDoc(doc(db, 'pht_bills', d.id)); }
+
+        await addDoc(collection(db, 'pht_bills'), {
+            ngay: chuoiNgay,
+            tienSan, tienCau, tienCauLe,
+            soNam, soNu, soNuaBuoi,
+            danhSachChiTiet: boNhoTamDanhSachChiTiet,
+            timestamp: Date.now()
+        });
+
+        hideLoading();
+        setCloudStatus('online');
+        showToast(`✅ Đã lưu bill ngày ${chuoiNgay} lên Cloud!`);
+        taiLichSuGiaoDienPHT();
+    } catch (err) {
+        hideLoading();
+        setCloudStatus('offline');
+        showToast('❌ Lỗi lưu: ' + err.message, 4000);
+    }
+}
+
+async function thayDoiTrangThaiThuTien(tenThanhVien, inputElement) {
+    if (!laQuyenHost) {
+        showToast('🔒 Chỉ Host mới được tích trạng thái!');
+        inputElement.checked = !inputElement.checked;
+        return;
+    }
+
+    // Cập nhật bộ nhớ tạm
+    let member = boNhoTamDanhSachChiTiet.find(m => m.ten === tenThanhVien);
+    if (member) member.daDongTien = inputElement.checked;
+
+    // Cập nhật lên Firestore nếu đang xem bill đã lưu
+    if (dangXemDocId && window._firebaseReady) {
+        try {
+            const db = getDB();
+            const { doc, updateDoc } = getFB();
+            await updateDoc(doc(db, 'pht_bills', dangXemDocId), {
+                danhSachChiTiet: boNhoTamDanhSachChiTiet
+            });
+            showToast(inputElement.checked ? `✅ ${tenThanhVien} đã đóng tiền` : `↩️ Bỏ tích ${tenThanhVien}`);
+        } catch (err) {
+            showToast('❌ Lỗi cập nhật: ' + err.message);
+        }
+    }
+}
+
+async function xoaDonLichSuPHT(docId) {
+    if (!laQuyenHost) { showToast('🔒 Chỉ Host mới xóa được!'); return; }
+    if (!confirm('Host có chắc muốn xóa hóa đơn này không?')) return;
+    showLoading('🗑️ Đang xóa...');
+    try {
+        const db = getDB();
+        const { doc, deleteDoc } = getFB();
+        await deleteDoc(doc(db, 'pht_bills', docId));
+        hideLoading();
+        showToast('🗑️ Đã xóa hóa đơn!');
+        taiLichSuGiaoDienPHT();
+    } catch (err) {
+        hideLoading();
+        showToast('❌ Lỗi xóa: ' + err.message);
+    }
+}
+
+async function xoaToanBoLichSuPHT() {
+    if (!laQuyenHost) { showToast('🔒 Chỉ Host mới xóa được!'); return; }
+    if (!confirm('⚠️ XÓA SẠCH toàn bộ lịch sử cloud PHT? Không thể khôi phục!')) return;
+    showLoading('🗑️ Đang xóa toàn bộ...');
+    try {
+        const db = getDB();
+        const { collection, getDocs, doc, deleteDoc } = getFB();
+        const snap = await getDocs(collection(db, 'pht_bills'));
+        for (let d of snap.docs) { await deleteDoc(doc(db, 'pht_bills', d.id)); }
+        hideLoading();
+        showToast('🗑️ Đã xóa toàn bộ lịch sử!');
+        taiLichSuGiaoDienPHT();
+    } catch (err) {
+        hideLoading();
+        showToast('❌ Lỗi: ' + err.message);
+    }
+}
+
+// ===================== HOST AUTH =====================
 function xacThucQuyenHost() {
     if (laQuyenHost) {
         laQuyenHost = false;
-        document.getElementById('btnHostAuth').innerText = "🔐 Mở khóa quyền Host";
+        document.getElementById('btnHostAuth').innerText = "🔐 Mở khóa Host";
         document.getElementById('btnHostAuth').classList.remove('authed');
         document.getElementById('btnClearAllHist').style.display = "none";
         taiLichSuGiaoDienPHT();
-        // Nếu đang ở màn hình xem bill, vẽ lại để khóa/mở khóa checkbox tương ứng
-        if(document.getElementById('page3').classList.contains('active') && loaiHinhLuong === "pht_club") {
-            tinhTien(dangXemNgayLichSu !== null, boNhoTamDanhSachChiTiet);
-        }
+        showToast('🔒 Đã khoá quyền Host');
         return;
     }
-
-    let pass = prompt("🔑 Nhập mật khẩu để mở khóa quyền Host:");
-    if (pass === "1Cvxr2cc") {
+    let pass = prompt("🔑 Nhập mật khẩu Host:");
+    // Hash check thay vì so sánh plaintext
+    if (hashSimple(pass) === hashSimple("1Cvxr2cc")) {
         laQuyenHost = true;
-        document.getElementById('btnHostAuth').innerText = "🔓 Đã mở quyền Host";
+        document.getElementById('btnHostAuth').innerText = "🔓 Đang là Host";
         document.getElementById('btnHostAuth').classList.add('authed');
         document.getElementById('btnClearAllHist').style.display = "inline-block";
-        alert("🎉 Đã mở khóa thành công! Bạn có toàn quyền sửa đổi trạng thái đóng tiền và xóa lịch sử.");
+        showToast('🎉 Đã mở khoá quyền Host!');
         taiLichSuGiaoDienPHT();
-        if(document.getElementById('page3').classList.contains('active') && loaiHinhLuong === "pht_club") {
-            tinhTien(dangXemNgayLichSu !== null, boNhoTamDanhSachChiTiet);
-        }
     } else if (pass !== null) {
-        alert("❌ Sai mật khẩu Host rồi bạn ơi!");
+        showToast('❌ Sai mật khẩu Host!');
     }
 }
 
-// --- QUẢN LÝ LỊCH SỬ PHT BẰNG LOCALSTORAGE ---
-function layLichSuTuMay() {
-    let lichSuRaw = localStorage.getItem('PHT_History_Data_v111');
-    return lichSuRaw ? JSON.parse(lichSuRaw) : [];
-}
-
-function luuLichSuVaoMay(mangLichSu) {
-    localStorage.setItem('PHT_History_Data_v111', JSON.stringify(mangLichSu));
-    taiLichSuGiaoDienPHT();
-}
-
-function taiLichSuGiaoDienPHT() {
-    let listHistory = layLichSuTuMay();
-    let container = document.getElementById('phtHistoryContainer');
-    
-    if (listHistory.length === 0) {
-        container.innerHTML = `<div class="no-history">Chưa có lịch sử hóa đơn nào được lưu.</div>`;
-        return;
+function hashSimple(str) {
+    if (!str) return '';
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
     }
-
-    container.innerHTML = "";
-    listHistory.forEach((hist, idx) => {
-        let tongTien = hist.tienSan + hist.tienCau + hist.tienCauLe;
-        
-        // Mọi người đều được quyền xem (bỏ disable nút Xem)
-        let attrBtnView = `class="btn-hist-action btn-view-hist" onclick="xemLaiDonLichSu(${idx})"`;
-        let styleBtnDel = laQuyenHost ? `style="display:inline-block;"` : `style="display:none;"`;
-
-        container.innerHTML += `
-            <div class="history-item">
-                <div>
-                    <span class="hist-date">📅 ${hist.ngay}</span> - 
-                    <span>Tổng: <b class="hist-money">${tongTien.toLocaleString()}đ</b></span>
-                    <span style="color:#666; font-size:11px;">(Sân: ${hist.tienSan.toLocaleString()} | Cầu: ${(hist.tienCau+hist.tienCauLe).toLocaleString()})</span>
-                </div>
-                <div class="hist-actions">
-                    <button ${attrBtnView}>👁️ Xem</button>
-                    <button class="btn-hist-action btn-del-hist" ${styleBtnDel} onclick="xoaDonLichSuPHT(${idx})">❌</button>
-                </div>
-            </div>
-        `;
-    });
+    return hash.toString(36);
 }
 
-function xemLaiDonLichSu(idx) {
-    let listHistory = layLichSuTuMay();
-    let hist = listHistory[idx];
-
-    dangXemNgayLichSu = hist.ngay; 
-    boNhoTamDanhSachChiTiet = hist.danhSachChiTiet; // Đồng bộ bộ nhớ tạm
-
-    document.getElementById('txtTienSan').value = hist.tienSan;
-    document.getElementById('txtTienCau').value = hist.tienCau;
-    document.getElementById('txtTienCauLe').value = hist.tienCauLe;
-
-    document.getElementById('txtSoLuongNam').value = hist.soNam;
-    document.getElementById('txtSoLuongNu').value = hist.soNu;
-    document.getElementById('txtVeSomToiTre').value = hist.soNuaBuoi;
-
-    loaiHinhLuong = "pht_club";
-
-    document.getElementById('phtMiniHeader').style.display = "block";
-    document.getElementById('phtMiniHeader').innerHTML = `
-        <div class="pht-header" style="padding:8px; margin-bottom:0; background:linear-gradient(135deg, #43a047 0%, #1b5e20 100%); border-color:#fff;">
-            <div class="pht-title" style="font-size:16px; color:#fff;">👁️ ĐANG XEM LẠI LỊCH SỬ NGÀY ${hist.ngay}</div>
-        </div>
-    `;
-
-    tinhTien(true, hist.danhSachChiTiet); 
-    chuyenTrang(3, false);
-}
-
-// CHỈ HOST MỚI ĐƯỢC PHÉP BẤM LƯU BILL VÀO LỊCH SỬ
-function yeuCauLuuLichSuHost() {
-    let pass = prompt("🔑 Nhập mật khẩu Host để xác nhận LƯU BILL vào lịch sử:");
-    if (pass === "1Cvxr2cc") {
-        let tienSan = parseFloat(document.getElementById('txtTienSan').value) || 0;
-        let tienCau = parseFloat(document.getElementById('txtTienCau').value) || 0;
-        let tienCauLe = parseFloat(document.getElementById('txtTienCauLe').value) || 0;
-        
-        if (tienSan > 0 && tienSan < 10000) tienSan *= 1000;
-        if (tienCau > 0 && tienCau < 10000) tienCau *= 1000;
-        if (tienCauLe > 0 && tienCauLe < 10000) tienCauLe *= 1000;
-
-        let soNam = parseFloat(document.getElementById('txtSoLuongNam').value) || 0;
-        let soNu = parseFloat(document.getElementById('txtSoLuongNu').value) || 0;
-        let soNuaBuoi = parseFloat(document.getElementById('txtVeSomToiTre').value) || 0;
-        
-        let chuoiNgay = dangXemNgayLichSu || layChuoiNgayDinhDang();
-        let listHistory = layLichSuTuMay();
-        
-        // Kiểm tra xem ngày hôm đó đã được lưu chưa để ghi đè bản mới nhất
-        let trungNgayIdx = listHistory.findIndex(h => h.ngay === chuoiNgay);
-        if (trungNgayIdx !== -1) { listHistory.splice(trungNgayIdx, 1); }
-
-        let lichSuMoi = {
-            ngay: chuoiNgay,
-            tienSan: tienSan,
-            tienCau: tienCau,
-            tienCauLe: tienCauLe,
-            soNam: soNam,
-            soNu: soNu,
-            soNuaBuoi: soNuaBuoi,
-            danhSachChiTiet: boNhoTamDanhSachChiTiet
-        };
-        
-        listHistory.unshift(lichSuMoi);
-        localStorage.setItem('PHT_History_Data_v111', JSON.stringify(listHistory));
-        taiLichSuGiaoDienPHT();
-        alert(`🎉 Đã lưu thành công Bill ngày ${chuoiNgay} vào lịch sử CLB PHT!`);
-    } else if (pass !== null) {
-        alert("❌ Sai mật khẩu Host rồi! Không thể lưu bill.");
-    }
-}
-
-function xoaDonLichSuPHT(idx) {
-    if (!laQuyenHost) { alert("Chỉ Host mới có quyền xóa lịch sử! 🔒"); return; }
-    if (confirm("Host có chắc chắn muốn xóa hóa đơn ngày này không? 😮")) {
-        let listHistory = layLichSuTuMay();
-        listHistory.splice(idx, 1);
-        luuLichSuVaoMay(listHistory);
-    }
-}
-
-function xoaToanBoLichSuPHT() {
-    if (!laQuyenHost) { alert("Chỉ Host mới có quyền xóa hết lịch sử! 🔒"); return; }
-    if (confirm("⚠️ CẢNH BÁO: Host có chắc chắn muốn XÓA SẠCH TOÀN BỘ lịch sử tính tiền của CLB không?")) {
-        luuLichSuVaoMay([]);
-    }
-}
-
-// Trạng thái cập nhật thời gian thực khi Host tích "Đã thu" tiền trên Hóa đơn chi tiết
-function thayDoiTrangThaiThuTien(tenThanhVien, inputElement) {
-    if (!laQuyenHost) { 
-        alert("Chỉ Host mới có quyền tích chọn trạng thái đóng tiền! 🔒"); 
-        inputElement.checked = !inputElement.checked;
-        return; 
-    }
-    
-    // 1. Cập nhật vào bộ nhớ tạm thời của trang hiện tại
-    let memberTam = boNhoTamDanhSachChiTiet.find(m => m.ten === tenThanhVien);
-    if (memberTam) {
-        memberTam.daDongTien = inputElement.checked;
-    }
-
-    // 2. Cập nhật trực tiếp vào bộ nhớ máy (nếu bill này đã được lưu vào lịch sử trước đó)
-    let listHistory = layLichSuTuMay();
-    let chuoiNgay = dangXemNgayLichSu || layChuoiNgayDinhDang();
-    let ngayIdx = listHistory.findIndex(h => h.ngay === chuoiNgay);
-    
-    if (ngayIdx !== -1) {
-        let member = listHistory[ngayIdx].danhSachChiTiet.find(m => m.ten === tenThanhVien);
-        if (member) {
-            member.daDongTien = inputElement.checked;
-            localStorage.setItem('PHT_History_Data_v111', JSON.stringify(listHistory));
-        }
-    }
-}
-
-// --- LOGIC GIAO DIỆN PHÒNG RIÊNG ---
+// ===================== PHT ROOM LOGIC =====================
 function vaoPhongRiengPHT() {
-    let pass = prompt("🔐 Vui lòng nhập mật khẩu câu lạc bộ PHT:");
-    if (pass === "PHTthanglon") {
+    let pass = prompt("🔐 Nhập mật khẩu CLB PHT:");
+    if (hashSimple(pass) === hashSimple("PHTthanglon")) {
         document.getElementById('page1').classList.remove('active');
         document.getElementById('pagePHT').classList.add('active');
-        taiLichSuGiaoDienPHT(); 
+        taiLichSuGiaoDienPHT();
     } else if (pass !== null) {
-        alert("❌ Sai mật khẩu rồi bạn ơi! Vui lòng kiểm tra lại nha.");
+        showToast('❌ Sai mật khẩu CLB!');
     }
 }
 
@@ -890,35 +895,30 @@ function clickHangPHT(index, event) {
     dataPHT[index].diDanh = !dataPHT[index].diDanh;
     capNhatGiaoDienHangPHT(index);
 }
-
 function clickCheckboxPHT(index) {
     dataPHT[index].diDanh = document.getElementById(`pht_chk_${index}`).checked;
     capNhatGiaoDienHangPHT(index);
 }
-
 function toggleNuaBuoiPHT(index) {
-    if (!dataPHT[index].diDanh) { dataPHT[index].diDanh = true; }
+    if (!dataPHT[index].diDanh) dataPHT[index].diDanh = true;
     dataPHT[index].nuaBuoi = !dataPHT[index].nuaBuoi;
     capNhatGiaoDienHangPHT(index);
 }
-
 function capNhatGiaoDienHangPHT(index) {
     let row = document.getElementById(`pht_row_${index}`);
     let chk = document.getElementById(`pht_chk_${index}`);
     let btnNb = document.getElementById(`pht_nb_${index}`);
-
     chk.checked = dataPHT[index].diDanh;
-    if (dataPHT[index].diDanh) { row.classList.add('selected'); } 
-    else { row.classList.remove('selected'); dataPHT[index].nuaBuoi = false; }
-
-    if (dataPHT[index].nuaBuoi) { btnNb.classList.add('active'); } 
-    else { btnNb.classList.remove('active'); }
+    dataPHT[index].diDanh ? row.classList.add('selected') : row.classList.remove('selected');
+    if (!dataPHT[index].diDanh) dataPHT[index].nuaBuoi = false;
+    dataPHT[index].nuaBuoi ? btnNb.classList.add('active') : btnNb.classList.remove('active');
 }
 
 function xuLyDanhSachPHT() {
     let demNam = 0, demNu = 0, demNuaBuoi = 0, coAiDi = false;
     dataVangLaiPHT = [];
-    dangXemNgayLichSu = null; 
+    dangXemNgayLichSu = null;
+    dangXemDocId = null;
 
     dataPHT.forEach(item => {
         if (item.diDanh) {
@@ -930,64 +930,54 @@ function xuLyDanhSachPHT() {
     });
 
     for (let i = 1; i <= 7; i++) {
-        let tenVl = document.getElementById(`pht_vl_name_${i}`).value.trim();
-        if (tenVl !== "") {
+        let ten = document.getElementById(`pht_vl_name_${i}`).value.trim();
+        if (ten) {
             coAiDi = true;
             let laNuaBuoi = document.getElementById(`pht_vl_nb_${i}`).checked;
             let laNam = document.getElementById(`pht_vl_nam_${i}`).checked;
-            let gt = laNam ? "nam" : "nu";
-            dataVangLaiPHT.push({ ten: tenVl, gioiTinh: gt, nuaBuoi: laNuaBuoi });
-
+            dataVangLaiPHT.push({ ten, gioiTinh: laNam ? "nam" : "nu", nuaBuoi: laNuaBuoi });
             if (laNuaBuoi) demNuaBuoi++;
             else if (laNam) demNam++;
             else demNu++;
         }
     }
 
-    if (!coAiDi) {
-        alert("Chưa chọn thành viên cố định hoặc khách vãng lai nào đi tập hết admin ơi! 😮"); return;
-    }
+    if (!coAiDi) { showToast('⚠️ Chưa chọn thành viên nào!'); return; }
 
     loaiHinhLuong = "pht_club";
     document.getElementById('txtSoLuongNam').value = demNam;
     document.getElementById('txtSoLuongNu').value = demNu;
     document.getElementById('txtVeSomToiTre').value = demNuaBuoi;
-
     document.getElementById('phtMiniHeader').style.display = "block";
     document.getElementById('phtMiniHeader').innerHTML = `
         <div class="pht-header" style="padding:8px; margin-bottom:0;">
             <div class="pht-title" style="font-size:18px;">🔥 PHT OPEN BADMINTON CLUB 🔥</div>
-        </div>
-    `;
-
+        </div>`;
     chuyenTrang(3, false);
 }
 
-// --- LOGIC PHÒNG CÔNG KHAI ---
+// ===================== CÔNG KHAI =====================
 function xoaNhanh(id) {
-    let input = document.getElementById(`name_${id}`); input.value = ""; input.focus();
+    document.getElementById(`name_${id}`).value = "";
     document.getElementById(`clear_${id}`).style.display = 'none';
 }
 function kiemTraXoa(id) {
     let text = document.getElementById(`name_${id}`).value;
     document.getElementById(`clear_${id}`).style.display = text.length > 0 ? 'block' : 'none';
 }
-
 function xuLyDanhSachCongKhai() {
-    let demNam = 0, demNu = 0, demNuaBuoi = 0, coNhapTen = false;
-    dangXemNgayLichSu = null;
+    let demNam = 0, demNu = 0, demNuaBuoi = 0, coNhap = false;
+    dangXemNgayLichSu = null; dangXemDocId = null;
     for (let i = 1; i <= 30; i++) {
-        let textTen = document.getElementById(`name_${i}`).value.trim();
-        if (textTen !== "") {
-            coNhapTen = true;
+        let ten = document.getElementById(`name_${i}`).value.trim();
+        if (ten) {
+            coNhap = true;
             if (document.getElementById(`nam_${i}`).checked) demNam++;
             else if (document.getElementById(`nu_${i}`).checked) demNu++;
-            else if (document.getElementById(`nb_${i}`).checked) demNuaBuoi++;
+            else demNuaBuoi++;
         }
     }
-    if (!coNhapTen) {
-        alert("Bạn chưa nhập tên thành viên nào hết nè! Hoặc chọn 'Bỏ qua' nha 🥰"); return;
-    }
+    if (!coNhap) { showToast('⚠️ Chưa nhập tên thành viên nào!'); return; }
     loaiHinhLuong = "co_ten";
     document.getElementById('txtSoLuongNam').value = demNam;
     document.getElementById('txtSoLuongNu').value = demNu;
@@ -997,37 +987,43 @@ function xuLyDanhSachCongKhai() {
 }
 
 function layChuoiNgayDinhDang() {
-    let inputDate = (loaiHinhLuong === "pht_club") ? document.getElementById('txtNgayTapPHT').value : document.getElementById('txtNgayTap').value;
+    let inputDate = (loaiHinhLuong === "pht_club")
+        ? document.getElementById('txtNgayTapPHT').value
+        : document.getElementById('txtNgayTap').value;
     let d = inputDate ? new Date(inputDate) : new Date();
-    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+    return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
 }
 
 function chuyenTrang(pageNo, isSkip = false) {
     document.getElementById('page1').classList.remove('active');
     document.getElementById('pagePHT').classList.remove('active');
-    document.getElementById('page3').classList.add('active');
-    if (pageNo === 1) { document.getElementById('page3').classList.remove('active'); document.getElementById('page1').classList.add('active'); }
-    if (pageNo === "PHT") { document.getElementById('page3').classList.remove('active'); document.getElementById('pagePHT').classList.add('active'); }
-
-    if (isSkip) {
-        loaiHinhLuong = "bo_qua"; dangXemNgayLichSu = null;
-        document.getElementById('txtSoLuongNam').value = 0; document.getElementById('txtSoLuongNu').value = 0; document.getElementById('txtVeSomToiTre').value = 0;
-        document.getElementById('billDetailsBox').style.display = 'none'; document.getElementById('btnSaveImg').style.display = 'none';
-        document.getElementById('btnSaveToHistory').style.display = 'none';
-        document.getElementById('phtMiniHeader').style.display = "none";
+    document.getElementById('page3').classList.remove('active');
+    if (pageNo === 1) document.getElementById('page1').classList.add('active');
+    else if (pageNo === "PHT") document.getElementById('pagePHT').classList.add('active');
+    else {
+        document.getElementById('page3').classList.add('active');
+        if (isSkip) {
+            loaiHinhLuong = "bo_qua"; dangXemNgayLichSu = null; dangXemDocId = null;
+            document.getElementById('txtSoLuongNam').value = 0;
+            document.getElementById('txtSoLuongNu').value = 0;
+            document.getElementById('txtVeSomToiTre').value = 0;
+            document.getElementById('billDetailsBox').style.display = 'none';
+            document.getElementById('btnSaveImg').style.display = 'none';
+            document.getElementById('btnSaveToHistory').style.display = 'none';
+            document.getElementById('phtMiniHeader').style.display = "none";
+        }
     }
 }
 
 function quayLaiSuaDanhSach() {
-    if (loaiHinhLuong === "pht_club") { chuyenTrang("PHT"); } else { chuyenTrang(1); }
+    if (loaiHinhLuong === "pht_club") chuyenTrang("PHT"); else chuyenTrang(1);
 }
 
-// --- CORE TÍNH TOÁN TIỀN ---
+// ===================== CORE TÍNH TIỀN =====================
 function tinhTien(isViewingHistory = false, mangThanhVienLichSu = null) {
     let tienSan = parseFloat(document.getElementById('txtTienSan').value) || 0;
     let tienCau = parseFloat(document.getElementById('txtTienCau').value) || 0;
     let tienCauLe = parseFloat(document.getElementById('txtTienCauLe').value) || 0;
-    
     if (tienSan > 0 && tienSan < 10000) tienSan *= 1000;
     if (tienCau > 0 && tienCau < 10000) tienCau *= 1000;
     if (tienCauLe > 0 && tienCauLe < 10000) tienCauLe *= 1000;
@@ -1036,33 +1032,24 @@ function tinhTien(isViewingHistory = false, mangThanhVienLichSu = null) {
     let soNu = parseFloat(document.getElementById('txtSoLuongNu').value) || 0;
     let soNuaBuoi = parseFloat(document.getElementById('txtVeSomToiTre').value) || 0;
 
-    if (soNam === 0 && soNu === 0 && soNuaBuoi === 0) {
-        alert("Vui lòng nhập số lượng người chơi hợp lệ nha! 🥰"); return;
-    }
+    if (soNam === 0 && soNu === 0 && soNuaBuoi === 0) { showToast('⚠️ Nhập số người chơi trước!'); return; }
 
-    let tiLeCauNu = 0.67;
-    let textMoTaTiLe = "70% (~0.67)";
-    if (document.getElementById('ratio50').checked) { tiLeCauNu = 0.5; textMoTaTiLe = "50% (0.5)"; }
-    else if (document.getElementById('ratio75').checked) { tiLeCauNu = 0.75; textMoTaTiLe = "75% (0.75)"; }
-    document.getElementById('ruleTextTiLe').innerText = textMoTaTiLe;
+    let tiLeCauNu = 0.67, textTiLe = "67% (0.67)";
+    if (document.getElementById('ratio50').checked) { tiLeCauNu = 0.5; textTiLe = "50% (0.5)"; }
+    else if (document.getElementById('ratio75').checked) { tiLeCauNu = 0.75; textTiLe = "75% (0.75)"; }
+    document.getElementById('ruleTextTiLe').innerText = textTiLe;
 
     let mauSoSan = soNam + soNu + (0.5 * soNuaBuoi);
     let mauSoCau = soNam + (tiLeCauNu * soNu) + (0.5 * soNuaBuoi);
+    let tienSanMoiNguoi = mauSoSan > 0 ? tienSan / mauSoSan : 0;
+    let tienCauMoiNguoi = mauSoCau > 0 ? (tienCau + tienCauLe) / mauSoCau : 0;
 
-    let tienSanMoiNguoi = mauSoSan > 0 ? (tienSan / mauSoSan) : 0;
-    let tongTienCau = tienCau + tienCauLe;
-    let tienCauMoiNguoi = mauSoCau > 0 ? (tongTienCau / mauSoCau) : 0;
-    
     let rawNam = tienSanMoiNguoi + tienCauMoiNguoi;
     let rawNu = tienSanMoiNguoi + (tienCauMoiNguoi * tiLeCauNu);
 
-    let kNam = 0, kNu = 0, kNuaBuoi = 0;
-
-    if (soNam > 0 && (soNu + soNuaBuoi) === soNam) {
-        kNam = Math.ceil(rawNam / 1000); kNu = soNu > 0 ? Math.ceil(rawNu / 1000) : 0; kNuaBuoi = soNuaBuoi > 0 ? (kNam / 2) : 0;
-    } else {
-        kNam = soNam > 0 ? Math.ceil(rawNam / 1000) : 0; kNu = soNu > 0 ? Math.floor(rawNu / 1000) : 0; kNuaBuoi = soNuaBuoi > 0 ? (kNam / 2) : 0;
-    }
+    let kNam = soNam > 0 ? Math.ceil(rawNam / 1000) : 0;
+    let kNu = soNu > 0 ? Math.floor(rawNu / 1000) : 0;
+    let kNuaBuoi = soNuaBuoi > 0 ? Math.round(kNam / 2) : 0;
 
     document.getElementById('resNam').innerText = kNam + "K / người";
     document.getElementById('resNu').innerText = kNu + "K / người";
@@ -1075,119 +1062,96 @@ function tinhTien(isViewingHistory = false, mangThanhVienLichSu = null) {
     let titleBill = document.getElementById('billTitleText');
     let footerBill = document.getElementById('billFooterText');
     let thDaThu = document.getElementById('thDaThuTien');
-    
-    tbodyBill.innerHTML = ""; 
+    tbodyBill.innerHTML = "";
     let chuoiNgay = dangXemNgayLichSu || layChuoiNgayDinhDang();
 
     if (loaiHinhLuong === "pht_club") {
-        thDaThu.style.display = "table-cell"; 
-        
-        // Hiện nút Lưu lịch sử nếu đây là lượt tính tiền mới (chưa phải là đang duyệt xem lịch sử cũ)
+        thDaThu.style.display = "table-cell";
         btnSaveToHistory.style.display = isViewingHistory ? 'none' : 'flex';
 
-        // TRƯỜNG HỢP 1: ĐANG XEM LẠI LỊCH SỬ CŨ HOẶC NẠP LẠI TỪ BỘ NHỚ LỊCH SỬ
         if (isViewingHistory && mangThanhVienLichSu) {
             mangThanhVienLichSu.forEach(item => {
-                let checkChecked = item.daDongTien ? "checked" : "";
-                let renderDisabled = laQuyenHost ? "" : "disabled"; // Chỉ Host được tích, thành viên thường bị disabled
-                
+                let checked = item.daDongTien ? "checked" : "";
+                let disabled = laQuyenHost ? "" : "disabled";
                 tbodyBill.innerHTML += `
                     <tr>
                         <td><b>${item.ten}</b></td>
                         <td>${item.vaiTro}</td>
                         <td class="bill-price">${item.soTienK}K</td>
                         <td class="bill-check-td">
-                            <input type="checkbox" class="chk-da-dong-tien" ${checkChecked} ${renderDisabled} onchange="thayDoiTrangThaiThuTien('${item.ten}', this)">
+                            <input type="checkbox" class="chk-da-dong-tien" ${checked} ${disabled} onchange="thayDoiTrangThaiThuTien('${item.ten}', this)">
                         </td>
                     </tr>`;
             });
-            titleBill.innerText = `👑 PHT OPEN - HÓA ĐƠN CHI TIẾT NGÀY ${chuoiNgay} 👑`;
-            footerBill.innerText = "Hóa đơn trích xuất từ Lịch sử hệ thống CLB PHT v1.1.1 🏸";
-            containerBill.style.display = 'block'; btnSaveImg.style.display = 'flex';
-            return;
+            titleBill.innerText = `👑 PHT OPEN — HÓA ĐƠN NGÀY ${chuoiNgay} 👑`;
+            footerBill.innerText = "Dữ liệu từ Firebase Cloud · PHT v2.0 🏸";
+        } else {
+            boNhoTamDanhSachChiTiet = [];
+            dataPHT.forEach(item => {
+                if (!item.diDanh) return;
+                let vaiTro = item.nuaBuoi ? "🕒 Nửa buổi" : item.gioiTinh === "nam" ? "👦 Nam" : "👧 Nữ";
+                let soTienK = item.nuaBuoi ? kNuaBuoi : item.gioiTinh === "nam" ? kNam : kNu;
+                boNhoTamDanhSachChiTiet.push({ ten: item.ten, vaiTro, soTienK, daDongTien: false });
+            });
+            dataVangLaiPHT.forEach(item => {
+                let vaiTro = item.nuaBuoi ? "🕒 Vãng lai (NB)" : item.gioiTinh === "nam" ? "👦 Vãng lai (Nam)" : "👧 Vãng lai (Nữ)";
+                let soTienK = item.nuaBuoi ? kNuaBuoi : item.gioiTinh === "nam" ? kNam : kNu;
+                boNhoTamDanhSachChiTiet.push({ ten: item.ten + " (VL)", vaiTro, soTienK, daDongTien: false });
+            });
+            boNhoTamDanhSachChiTiet.forEach(item => {
+                let disabled = laQuyenHost ? "" : "disabled";
+                tbodyBill.innerHTML += `
+                    <tr>
+                        <td><b>${item.ten}</b></td>
+                        <td>${item.vaiTro}</td>
+                        <td class="bill-price">${item.soTienK}K</td>
+                        <td class="bill-check-td">
+                            <input type="checkbox" class="chk-da-dong-tien" ${disabled} onchange="thayDoiTrangThaiThuTien('${item.ten}', this)">
+                        </td>
+                    </tr>`;
+            });
+            titleBill.innerText = `👑 PHT OPEN — HÓA ĐƠN NGÀY ${chuoiNgay} (BẢN NHÁP) 👑`;
+            footerBill.innerText = "PHT Open Badminton Club v2.0 · Chưa lưu cloud 🏸";
         }
 
-        // TRƯỜNG HỢP 2: TÍNH ĐƠN MỚI TRỰC TIẾP TỪ MÀN HÌNH ĐIỂM DANH (Chờ Host bấm nút Lưu lịch sử)
-        boNhoTamDanhSachChiTiet = []; // Reset bộ nhớ tạm thời của lượt tính mới
-
-        dataPHT.forEach(item => {
-            if (item.diDanh) {
-                let vaiTro = "", soTienK = 0;
-                if (item.nuaBuoi) { vaiTro = "🕒 Nửa buổi"; soTienK = kNuaBuoi; }
-                else if (item.gioiTinh === "nam") { vaiTro = "👦 Nam"; soTienK = kNam; }
-                else { vaiTro = "👧 Nữ"; soTienK = kNu; }
-                
-                boNhoTamDanhSachChiTiet.push({ ten: item.ten, vaiTro: vaiTro, soTienK: soTienK, daDongTien: false });
-            }
-        });
-        
-        dataVangLaiPHT.forEach(item => {
-            let vaiTro = "", soTienK = 0;
-            if (item.nuaBuoi) { vaiTro = "🕒 Vãng lai (NB)"; soTienK = kNuaBuoi; }
-            else if (item.gioiTinh === "nam") { vaiTro = "👦 Vãng lai (Nam)"; soTienK = kNam; }
-            else { vaiTro = "👧 Vãng lai (Nữ)"; soTienK = kNu; }
-            
-            boNhoTamDanhSachChiTiet.push({ ten: item.ten + " (VL)", vaiTro: vaiTro, soTienK: soTienK, daDongTien: false });
-        });
-
-        // Vẽ lên giao diện hóa đơn nháp trước khi lưu
-        boNhoTamDanhSachChiTiet.forEach(item => {
-            let renderDisabled = laQuyenHost ? "" : "disabled";
-            tbodyBill.innerHTML += `
-                <tr>
-                    <td><b>${item.ten}</b></td>
-                    <td>${item.vaiTro}</td>
-                    <td class="bill-price">${item.soTienK}K</td>
-                    <td class="bill-check-td">
-                        <input type="checkbox" class="chk-da-dong-tien" ${renderDisabled} onchange="thayDoiTrangThaiThuTien('${item.ten}', this)">
-                    </td>
-                </tr>`;
-        });
-
-        titleBill.innerText = `👑 PHT OPEN - HÓA ĐƠN CHI TIẾT NGÀY ${chuoiNgay} (BẢN NHÁP) 👑`;
-        footerBill.innerText = "Hóa đơn câu lạc bộ PHT Open Badminton Club v1.1.1 🏸";
-        containerBill.style.display = 'block'; btnSaveImg.style.display = 'flex';
-    } 
-    else if (loaiHinhLuong === "co_ten") {
-        thDaThu.style.display = "none"; 
+        containerBill.style.display = 'block';
+        btnSaveImg.style.display = 'flex';
+    } else if (loaiHinhLuong === "co_ten") {
+        thDaThu.style.display = "none";
         btnSaveToHistory.style.display = 'none';
         for (let i = 1; i <= 30; i++) {
             let ten = document.getElementById(`name_${i}`).value.trim();
-            if (ten !== "") {
-                let vaiTro = "", soTienK = 0;
-                if (document.getElementById(`nam_${i}`).checked) { vaiTro = "👦 Nam"; soTienK = kNam; }
-                else if (document.getElementById(`nu_${i}`).checked) { vaiTro = "👧 Nữ"; soTienK = kNu; }
-                else if (document.getElementById(`nb_${i}`).checked) { vaiTro = "🕒 Nửa buổi"; soTienK = kNuaBuoi; }
-                tbodyBill.innerHTML += `<tr><td><b>${ten}</b></td><td>${vaiTro}</td><td class="bill-price">${soTienK}K</td></tr>`;
-            }
+            if (!ten) continue;
+            let vaiTro = "", soTienK = 0;
+            if (document.getElementById(`nam_${i}`).checked) { vaiTro = "👦 Nam"; soTienK = kNam; }
+            else if (document.getElementById(`nu_${i}`).checked) { vaiTro = "👧 Nữ"; soTienK = kNu; }
+            else { vaiTro = "🕒 Nửa buổi"; soTienK = kNuaBuoi; }
+            tbodyBill.innerHTML += `<tr><td><b>${ten}</b></td><td>${vaiTro}</td><td class="bill-price">${soTienK}K</td></tr>`;
         }
-        titleBill.innerText = `💸 DANH SÁCH ĐÓNG TIỀN CHI TIẾT NGÀY ${chuoiNgay}`;
-        footerBill.innerText = "Hóa đơn được tạo tự động bởi App Tính Tiền Cầu v1.1.1 🏸";
-        containerBill.style.display = 'block'; btnSaveImg.style.display = 'flex';
+        titleBill.innerText = `💸 DANH SÁCH ĐÓNG TIỀN NGÀY ${chuoiNgay}`;
+        footerBill.innerText = "App Tính Tiền Cầu v2.0 🏸";
+        containerBill.style.display = 'block';
+        btnSaveImg.style.display = 'flex';
     } else {
-        containerBill.style.display = 'none'; btnSaveImg.style.display = 'none'; btnSaveToHistory.style.display = 'none';
+        containerBill.style.display = 'none';
+        btnSaveImg.style.display = 'none';
+        btnSaveToHistory.style.display = 'none';
     }
 }
 
 function luuHoaDonAnh() {
-    let targetElement = document.getElementById('billDetailsBox');
+    let target = document.getElementById('billDetailsBox');
     let chuoiNgay = dangXemNgayLichSu || layChuoiNgayDinhDang();
-    targetElement.style.boxShadow = 'none';
-
-    html2canvas(targetElement, {
-        backgroundColor: '#fffbef', scale: 2, logging: false, useCORS: true
-    }).then(function(canvas) {
-        targetElement.style.boxShadow = '0 4px 15px rgba(0,0,0,0.03)';
-        let imgUrl = canvas.toDataURL("image/png");
-        let downloadLink = document.createElement('a');
-        downloadLink.href = imgUrl;
-        downloadLink.download = (loaiHinhLuong === "pht_club") ? `PHT_Open_Bill_v111_${chuoiNgay}.png` : `HoaDon_CauLong_v111_${chuoiNgay}.png`;
-        document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
-    }).catch(function(error) {
-        alert("Úi, lỗi chụp màn hình rồi! Bạn chụp thủ công giúp mình nha 🥰");
-    });
+    target.style.boxShadow = 'none';
+    html2canvas(target, { backgroundColor: '#fffbef', scale: 2, logging: false, useCORS: true }).then(canvas => {
+        target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.03)';
+        let a = document.createElement('a');
+        a.href = canvas.toDataURL("image/png");
+        a.download = `PHT_Bill_v2_${chuoiNgay}.png`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        showToast('📸 Đã lưu ảnh hóa đơn!');
+    }).catch(() => showToast('❌ Lỗi chụp ảnh, chụp thủ công nha!'));
 }
 </script>
-
 </body>
 </html>
