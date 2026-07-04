@@ -2,7 +2,22 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0f2040">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PHT Club">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/505/505730.png">
+<script>
+// PWA manifest (dynamic, single-file) — cho phép "Thêm vào màn hình chính" chạy như app
+(function(){
+  var m={name:"PHT Badminton Club",short_name:"PHT Club",description:"Tính tiền cầu lông & quản lý CLB PHT",start_url:location.href,scope:location.href.replace(/[^/]*$/,""),display:"standalone",orientation:"portrait",background_color:"#0f2040",theme_color:"#0f2040",icons:[{src:"https://cdn-icons-png.flaticon.com/512/505/505730.png",sizes:"512x512",type:"image/png",purpose:"any"},{src:"https://cdn-icons-png.flaticon.com/256/505/505730.png",sizes:"256x256",type:"image/png"}]};
+  var l=document.createElement("link");l.rel="manifest";
+  l.href="data:application/manifest+json,"+encodeURIComponent(JSON.stringify(m));
+  document.head.appendChild(l);
+})();
+</script>
 <title>🏸 PHT Badminton Club</title>
 <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/505/505730.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -31,7 +46,7 @@ window.dispatchEvent(new Event("fbReady"));
   --sh:0 4px 24px rgba(0,0,0,.08);--shl:0 8px 40px rgba(0,0,0,.13);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Be Vietnam Pro","Segoe UI",sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px}
+body{font-family:"Be Vietnam Pro","Segoe UI",sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:calc(12px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom))}
 .app{width:100%;max-width:460px;background:var(--card);border-radius:28px;box-shadow:0 12px 48px rgba(0,0,0,.14);overflow:hidden}
 .page{display:none}.page.active{display:block}
 
@@ -183,9 +198,9 @@ body{font-family:"Be Vietnam Pro","Segoe UI",sans-serif;background:var(--bg);min
 .bill-hrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:9px;border-bottom:2px dashed #fde68a}
 .bill-ttxt{font-size:12px;font-weight:800;color:#78350f;text-transform:uppercase;letter-spacing:.5px}
 .bill-dtxt{font-size:11px;color:#b45309;font-weight:600}
-.bill-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:11px}
+.bill-tbl{width:100%;border-collapse:collapse;font-size:14.5px;margin-bottom:11px}
 .bill-tbl th{font-size:10px;font-weight:700;color:#92400e;padding:5px 5px;border-bottom:1px solid #fde68a;text-align:left;text-transform:uppercase;letter-spacing:.5px}
-.bill-tbl td{padding:8px 5px;border-bottom:1px solid #fef9c3;color:var(--text)}
+.bill-tbl td{padding:9px 5px;border-bottom:1px solid #fef9c3;color:var(--text)}
 .bill-tbl tr:last-child td{border-bottom:none}
 .bptd{font-weight:800;color:var(--danger);text-align:right}
 .bctd{text-align:center;width:46px}
@@ -219,11 +234,147 @@ input[type=checkbox].tick{width:15px;height:15px;cursor:pointer;accent-color:var
 input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
 
 @media(max-width:400px){.two{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr}.rpills{flex-wrap:wrap}}
+
+/* Check nợ modal */
+.noModal{position:fixed;inset:0;background:rgba(15,32,64,.55);backdrop-filter:blur(3px);z-index:9998;display:none;align-items:flex-end;justify-content:center;padding:0}
+.noModal.show{display:flex}
+.noBox{background:#fff;width:100%;max-width:680px;max-height:88vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.25);animation:noUp .28s ease}
+@keyframes noUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.noHdr{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #f0f0f0;position:sticky;top:0;background:#fff;border-radius:22px 22px 0 0}
+.noTitle{font-weight:700;font-size:15px;color:var(--navy)}
+.noClose{width:32px;height:32px;border:none;background:#f3f4f6;border-radius:50%;font-size:15px;cursor:pointer;color:#666}
+.noBody{overflow-y:auto;padding:14px 16px calc(20px + env(safe-area-inset-bottom))}
+.noSum{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border-radius:14px;padding:13px 16px;margin-bottom:14px;text-align:center}
+.noSumBig{font-size:24px;font-weight:800;line-height:1.1}
+.noSumSub{font-size:12px;opacity:.9;margin-top:3px}
+.noPerson{border:1px solid #fecaca;border-radius:12px;margin-bottom:10px;overflow:hidden}
+.noPHdr{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;background:#fef2f2}
+.noPName{font-weight:700;font-size:14px;color:#991b1b}
+.noPTot{font-weight:800;font-size:14px;color:#dc2626}
+.noPRow{display:flex;justify-content:space-between;padding:7px 13px;font-size:13px;border-top:1px dashed #fee2e2;color:#555}
+.noPRow span:last-child{font-weight:700;color:#b45309}
+.noEmpty{text-align:center;padding:30px 16px;color:#16a34a;font-size:15px;font-weight:600}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true"><symbol id="phtBanner" viewBox="0 0 460 140">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050d1a"/>
+      <stop offset="50%" stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#0d1f3c"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b8860b"/>
+      <stop offset="40%" stop-color="#FFD700"/>
+      <stop offset="70%" stop-color="#FFF0A0"/>
+      <stop offset="100%" stop-color="#DAA520"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a56db" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#1a56db" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="glow2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur1"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="blur2"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- BG -->
+  <rect width="460" height="140" fill="url(#bg)"/>
+
+  <!-- Glow blobs -->
+  <ellipse cx="80" cy="70" rx="90" ry="60" fill="url(#glow1)" filter="url(#blur1)"/>
+  <ellipse cx="380" cy="50" rx="80" ry="50" fill="url(#glow2)" filter="url(#blur1)"/>
+  <ellipse cx="230" cy="140" rx="120" ry="50" fill="#1a56db" fill-opacity="0.15" filter="url(#blur1)"/>
+
+  <!-- Court lines -->
+  <rect x="20" y="10" width="420" height="120" rx="3" fill="none" stroke="#FFD700" stroke-width="0.6" stroke-opacity="0.15"/>
+  <line x1="230" y1="10" x2="230" y2="130" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.12"/>
+  <line x1="20" y1="70" x2="440" y2="70" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.2"/>
+  <rect x="80" y="10" width="300" height="120" fill="none" stroke="#FFD700" stroke-width="0.4" stroke-opacity="0.1"/>
+
+  <!-- Diagonal accent lines -->
+  <line x1="0" y1="140" x2="80" y2="0" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
+  <line x1="380" y1="0" x2="460" y2="140" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
+
+  <!-- NET line bold -->
+  <line x1="230" y1="20" x2="230" y2="120" stroke="#FFD700" stroke-width="1.2" stroke-opacity="0.35"/>
+  <!-- Net diamonds -->
+  <circle cx="230" cy="70" r="3" fill="#FFD700" fill-opacity="0.4"/>
+
+  <!-- Left racket (simplified elegant) -->
+  <g transform="translate(42,70) rotate(-35)" opacity="0.55">
+    <ellipse cx="0" cy="0" rx="16" ry="20" fill="none" stroke="#c8a800" stroke-width="1.4"/>
+    <line x1="-10" y1="-14" x2="10" y2="-14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-13" y1="-7" x2="13" y2="-7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-15" y1="0" x2="15" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-13" y1="7" x2="13" y2="7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-10" y1="14" x2="10" y2="14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-6" y1="-19" x2="-6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="0" y1="-20" x2="0" y2="20" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="6" y1="-19" x2="6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="0" y1="20" x2="0" y2="45" stroke="#c8a800" stroke-width="2.5"/>
+    <ellipse cx="0" cy="47" rx="4" ry="2" fill="#c8a800" fill-opacity="0.4"/>
+  </g>
+
+  <!-- Right racket -->
+  <g transform="translate(418,65) rotate(30)" opacity="0.5">
+    <ellipse cx="0" cy="0" rx="15" ry="19" fill="none" stroke="#c8a800" stroke-width="1.4"/>
+    <line x1="-9" y1="-13" x2="9" y2="-13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-12" y1="-6" x2="12" y2="-6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-14" y1="0" x2="14" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-12" y1="6" x2="12" y2="6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-9" y1="13" x2="9" y2="13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="-6" y1="-18" x2="-6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="0" y1="-19" x2="0" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="6" y1="-18" x2="6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
+    <line x1="0" y1="19" x2="0" y2="42" stroke="#c8a800" stroke-width="2.5"/>
+    <ellipse cx="0" cy="44" rx="3.5" ry="2" fill="#c8a800" fill-opacity="0.4"/>
+  </g>
+
+  <!-- Shuttlecock left -->
+  <g transform="translate(110,32)" opacity="0.6" filter="url(#blur2)">
+    <circle cx="0" cy="0" r="5" fill="none" stroke="#FFD700" stroke-width="1"/>
+    <line x1="0" y1="-5" x2="-6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
+    <line x1="0" y1="-5" x2="0" y2="-19" stroke="#FFD700" stroke-width="0.7"/>
+    <line x1="0" y1="-5" x2="6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
+    <path d="M-6,-18 Q0,-22 6,-18" stroke="#FFD700" stroke-width="0.7" fill="none"/>
+  </g>
+
+  <!-- Main text group -->
+  <g filter="url(#glow)">
+    <!-- PHT large -->
+    <text x="230" y="68" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="46" font-weight="900" fill="url(#gold)" letter-spacing="8" opacity="0.95">PHT</text>
+    <!-- BADMINTON CLUB -->
+    <text x="230" y="95" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="5" opacity="0.9">BADMINTON CLUB</text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="230" y="115" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#FFD700" letter-spacing="3" opacity="0.6">OPEN · 2026</text>
+
+  <!-- Top accent line -->
+  <line x1="130" y1="28" x2="195" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
+  <line x1="265" y1="28" x2="330" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
+  <!-- Diamond center top -->
+  <polygon points="230,22 234,26 230,30 226,26" fill="#FFD700" fill-opacity="0.5"/>
+</symbol></svg>
 <div class="overlay" id="ov"><div class="spinner"></div><div class="overlay-msg" id="ovMsg">Đang xử lý...</div></div>
 <div class="toast" id="toast"></div>
+
+<!-- MODAL CHECK NỢ -->
+<div class="noModal" id="noModal" onclick="if(event.target===this)closeNo()">
+  <div class="noBox">
+    <div class="noHdr">
+      <div class="noTitle">🔍 Danh sách CHƯA đóng tiền</div>
+      <button class="noClose" onclick="closeNo()">✕</button>
+    </div>
+    <div class="noBody" id="noBody"></div>
+  </div>
+</div>
 
 <div class="app">
 
@@ -238,111 +389,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
   <div class="body">
     <div class="slabel">Câu lạc bộ</div>
     <button class="club-btn" onclick="vaoPhongPHT()">
-      <svg viewBox="0 0 460 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:140px;display:block">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#050d1a"/>
-      <stop offset="50%" stop-color="#0a1628"/>
-      <stop offset="100%" stop-color="#0d1f3c"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#b8860b"/>
-      <stop offset="40%" stop-color="#FFD700"/>
-      <stop offset="70%" stop-color="#FFF0A0"/>
-      <stop offset="100%" stop-color="#DAA520"/>
-    </linearGradient>
-    <linearGradient id="glow1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1a56db" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#1a56db" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="glow2" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="blur1"><feGaussianBlur stdDeviation="8"/></filter>
-    <filter id="blur2"><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs>
-
-  <!-- BG -->
-  <rect width="460" height="140" fill="url(#bg)"/>
-
-  <!-- Glow blobs -->
-  <ellipse cx="80" cy="70" rx="90" ry="60" fill="url(#glow1)" filter="url(#blur1)"/>
-  <ellipse cx="380" cy="50" rx="80" ry="50" fill="url(#glow2)" filter="url(#blur1)"/>
-  <ellipse cx="230" cy="140" rx="120" ry="50" fill="#1a56db" fill-opacity="0.15" filter="url(#blur1)"/>
-
-  <!-- Court lines -->
-  <rect x="20" y="10" width="420" height="120" rx="3" fill="none" stroke="#FFD700" stroke-width="0.6" stroke-opacity="0.15"/>
-  <line x1="230" y1="10" x2="230" y2="130" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.12"/>
-  <line x1="20" y1="70" x2="440" y2="70" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.2"/>
-  <rect x="80" y="10" width="300" height="120" fill="none" stroke="#FFD700" stroke-width="0.4" stroke-opacity="0.1"/>
-
-  <!-- Diagonal accent lines -->
-  <line x1="0" y1="140" x2="80" y2="0" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
-  <line x1="380" y1="0" x2="460" y2="140" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
-
-  <!-- NET line bold -->
-  <line x1="230" y1="20" x2="230" y2="120" stroke="#FFD700" stroke-width="1.2" stroke-opacity="0.35"/>
-  <!-- Net diamonds -->
-  <circle cx="230" cy="70" r="3" fill="#FFD700" fill-opacity="0.4"/>
-
-  <!-- Left racket (simplified elegant) -->
-  <g transform="translate(42,70) rotate(-35)" opacity="0.55">
-    <ellipse cx="0" cy="0" rx="16" ry="20" fill="none" stroke="#c8a800" stroke-width="1.4"/>
-    <line x1="-10" y1="-14" x2="10" y2="-14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-13" y1="-7" x2="13" y2="-7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-15" y1="0" x2="15" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-13" y1="7" x2="13" y2="7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-10" y1="14" x2="10" y2="14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-6" y1="-19" x2="-6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="-20" x2="0" y2="20" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="6" y1="-19" x2="6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="20" x2="0" y2="45" stroke="#c8a800" stroke-width="2.5"/>
-    <ellipse cx="0" cy="47" rx="4" ry="2" fill="#c8a800" fill-opacity="0.4"/>
-  </g>
-
-  <!-- Right racket -->
-  <g transform="translate(418,65) rotate(30)" opacity="0.5">
-    <ellipse cx="0" cy="0" rx="15" ry="19" fill="none" stroke="#c8a800" stroke-width="1.4"/>
-    <line x1="-9" y1="-13" x2="9" y2="-13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-12" y1="-6" x2="12" y2="-6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-14" y1="0" x2="14" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-12" y1="6" x2="12" y2="6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-9" y1="13" x2="9" y2="13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-6" y1="-18" x2="-6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="-19" x2="0" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="6" y1="-18" x2="6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="19" x2="0" y2="42" stroke="#c8a800" stroke-width="2.5"/>
-    <ellipse cx="0" cy="44" rx="3.5" ry="2" fill="#c8a800" fill-opacity="0.4"/>
-  </g>
-
-  <!-- Shuttlecock left -->
-  <g transform="translate(110,32)" opacity="0.6" filter="url(#blur2)">
-    <circle cx="0" cy="0" r="5" fill="none" stroke="#FFD700" stroke-width="1"/>
-    <line x1="0" y1="-5" x2="-6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
-    <line x1="0" y1="-5" x2="0" y2="-19" stroke="#FFD700" stroke-width="0.7"/>
-    <line x1="0" y1="-5" x2="6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
-    <path d="M-6,-18 Q0,-22 6,-18" stroke="#FFD700" stroke-width="0.7" fill="none"/>
-  </g>
-
-  <!-- Main text group -->
-  <g filter="url(#glow)">
-    <!-- PHT large -->
-    <text x="230" y="68" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="46" font-weight="900" fill="url(#gold)" letter-spacing="8" opacity="0.95">PHT</text>
-    <!-- BADMINTON CLUB -->
-    <text x="230" y="95" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="5" opacity="0.9">BADMINTON CLUB</text>
-  </g>
-
-  <!-- Tagline -->
-  <text x="230" y="115" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#FFD700" letter-spacing="3" opacity="0.6">OPEN · 2026</text>
-
-  <!-- Top accent line -->
-  <line x1="130" y1="28" x2="195" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
-  <line x1="265" y1="28" x2="330" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
-  <!-- Diamond center top -->
-  <polygon points="230,22 234,26 230,30 226,26" fill="#FFD700" fill-opacity="0.5"/>
-</svg>
+      <svg viewBox="0 0 460 140" style="width:100%;height:140px;display:block"><use href="#phtBanner"/></svg>
       <div class="club-inner"><span class="club-name">🔥 PHT Open Badminton Club</span><span class="club-arrow">›</span></div>
     </button>
     <div class="divider">hoặc nhập thủ công</div>
@@ -356,111 +403,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
 <!-- PHT HOST -->
 <div id="pgPHT" class="page">
   <div class="pht-hero">
-    <svg viewBox="0 0 460 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:140px;display:block">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#050d1a"/>
-      <stop offset="50%" stop-color="#0a1628"/>
-      <stop offset="100%" stop-color="#0d1f3c"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#b8860b"/>
-      <stop offset="40%" stop-color="#FFD700"/>
-      <stop offset="70%" stop-color="#FFF0A0"/>
-      <stop offset="100%" stop-color="#DAA520"/>
-    </linearGradient>
-    <linearGradient id="glow1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1a56db" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#1a56db" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="glow2" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="blur1"><feGaussianBlur stdDeviation="8"/></filter>
-    <filter id="blur2"><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs>
-
-  <!-- BG -->
-  <rect width="460" height="140" fill="url(#bg)"/>
-
-  <!-- Glow blobs -->
-  <ellipse cx="80" cy="70" rx="90" ry="60" fill="url(#glow1)" filter="url(#blur1)"/>
-  <ellipse cx="380" cy="50" rx="80" ry="50" fill="url(#glow2)" filter="url(#blur1)"/>
-  <ellipse cx="230" cy="140" rx="120" ry="50" fill="#1a56db" fill-opacity="0.15" filter="url(#blur1)"/>
-
-  <!-- Court lines -->
-  <rect x="20" y="10" width="420" height="120" rx="3" fill="none" stroke="#FFD700" stroke-width="0.6" stroke-opacity="0.15"/>
-  <line x1="230" y1="10" x2="230" y2="130" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.12"/>
-  <line x1="20" y1="70" x2="440" y2="70" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.2"/>
-  <rect x="80" y="10" width="300" height="120" fill="none" stroke="#FFD700" stroke-width="0.4" stroke-opacity="0.1"/>
-
-  <!-- Diagonal accent lines -->
-  <line x1="0" y1="140" x2="80" y2="0" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
-  <line x1="380" y1="0" x2="460" y2="140" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
-
-  <!-- NET line bold -->
-  <line x1="230" y1="20" x2="230" y2="120" stroke="#FFD700" stroke-width="1.2" stroke-opacity="0.35"/>
-  <!-- Net diamonds -->
-  <circle cx="230" cy="70" r="3" fill="#FFD700" fill-opacity="0.4"/>
-
-  <!-- Left racket (simplified elegant) -->
-  <g transform="translate(42,70) rotate(-35)" opacity="0.55">
-    <ellipse cx="0" cy="0" rx="16" ry="20" fill="none" stroke="#c8a800" stroke-width="1.4"/>
-    <line x1="-10" y1="-14" x2="10" y2="-14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-13" y1="-7" x2="13" y2="-7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-15" y1="0" x2="15" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-13" y1="7" x2="13" y2="7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-10" y1="14" x2="10" y2="14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-6" y1="-19" x2="-6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="-20" x2="0" y2="20" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="6" y1="-19" x2="6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="20" x2="0" y2="45" stroke="#c8a800" stroke-width="2.5"/>
-    <ellipse cx="0" cy="47" rx="4" ry="2" fill="#c8a800" fill-opacity="0.4"/>
-  </g>
-
-  <!-- Right racket -->
-  <g transform="translate(418,65) rotate(30)" opacity="0.5">
-    <ellipse cx="0" cy="0" rx="15" ry="19" fill="none" stroke="#c8a800" stroke-width="1.4"/>
-    <line x1="-9" y1="-13" x2="9" y2="-13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-12" y1="-6" x2="12" y2="-6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-14" y1="0" x2="14" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-12" y1="6" x2="12" y2="6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-9" y1="13" x2="9" y2="13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-6" y1="-18" x2="-6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="-19" x2="0" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="6" y1="-18" x2="6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="19" x2="0" y2="42" stroke="#c8a800" stroke-width="2.5"/>
-    <ellipse cx="0" cy="44" rx="3.5" ry="2" fill="#c8a800" fill-opacity="0.4"/>
-  </g>
-
-  <!-- Shuttlecock left -->
-  <g transform="translate(110,32)" opacity="0.6" filter="url(#blur2)">
-    <circle cx="0" cy="0" r="5" fill="none" stroke="#FFD700" stroke-width="1"/>
-    <line x1="0" y1="-5" x2="-6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
-    <line x1="0" y1="-5" x2="0" y2="-19" stroke="#FFD700" stroke-width="0.7"/>
-    <line x1="0" y1="-5" x2="6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
-    <path d="M-6,-18 Q0,-22 6,-18" stroke="#FFD700" stroke-width="0.7" fill="none"/>
-  </g>
-
-  <!-- Main text group -->
-  <g filter="url(#glow)">
-    <!-- PHT large -->
-    <text x="230" y="68" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="46" font-weight="900" fill="url(#gold)" letter-spacing="8" opacity="0.95">PHT</text>
-    <!-- BADMINTON CLUB -->
-    <text x="230" y="95" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="5" opacity="0.9">BADMINTON CLUB</text>
-  </g>
-
-  <!-- Tagline -->
-  <text x="230" y="115" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#FFD700" letter-spacing="3" opacity="0.6">OPEN · 2026</text>
-
-  <!-- Top accent line -->
-  <line x1="130" y1="28" x2="195" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
-  <line x1="265" y1="28" x2="330" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
-  <!-- Diamond center top -->
-  <polygon points="230,22 234,26 230,30 226,26" fill="#FFD700" fill-opacity="0.5"/>
-</svg>
+    <svg viewBox="0 0 460 140" style="width:100%;height:140px;display:block"><use href="#phtBanner"/></svg>
     <div class="pht-hero-body">
       <div class="role-badge rb-host" id="rbadge">👑 Host</div>
       <div class="pht-title">PHT OPEN BADMINTON CLUB</div>
@@ -475,6 +418,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
       <div class="hhdr">
         <div class="htitle">☁️ Lịch sử Bill</div>
         <div style="display:flex;gap:6px">
+          <button class="bview" id="btnCheckNo" style="background:#fef3c7;color:#b45309;display:none" onclick="checkNo()">🔍 Check nợ</button>
           <button class="bview" id="btnClearAll" style="background:#fee2e2;color:#dc2626;display:none" onclick="clearAll()">🗑 Xóa hết</button>
         </div>
       </div>
@@ -487,111 +431,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
 <!-- MEMBER VIEW -->
 <div id="pgMember" class="page">
   <div class="pht-hero">
-    <svg viewBox="0 0 460 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:140px;display:block">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#050d1a"/>
-      <stop offset="50%" stop-color="#0a1628"/>
-      <stop offset="100%" stop-color="#0d1f3c"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#b8860b"/>
-      <stop offset="40%" stop-color="#FFD700"/>
-      <stop offset="70%" stop-color="#FFF0A0"/>
-      <stop offset="100%" stop-color="#DAA520"/>
-    </linearGradient>
-    <linearGradient id="glow1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1a56db" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#1a56db" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="glow2" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="blur1"><feGaussianBlur stdDeviation="8"/></filter>
-    <filter id="blur2"><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs>
-
-  <!-- BG -->
-  <rect width="460" height="140" fill="url(#bg)"/>
-
-  <!-- Glow blobs -->
-  <ellipse cx="80" cy="70" rx="90" ry="60" fill="url(#glow1)" filter="url(#blur1)"/>
-  <ellipse cx="380" cy="50" rx="80" ry="50" fill="url(#glow2)" filter="url(#blur1)"/>
-  <ellipse cx="230" cy="140" rx="120" ry="50" fill="#1a56db" fill-opacity="0.15" filter="url(#blur1)"/>
-
-  <!-- Court lines -->
-  <rect x="20" y="10" width="420" height="120" rx="3" fill="none" stroke="#FFD700" stroke-width="0.6" stroke-opacity="0.15"/>
-  <line x1="230" y1="10" x2="230" y2="130" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.12"/>
-  <line x1="20" y1="70" x2="440" y2="70" stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.2"/>
-  <rect x="80" y="10" width="300" height="120" fill="none" stroke="#FFD700" stroke-width="0.4" stroke-opacity="0.1"/>
-
-  <!-- Diagonal accent lines -->
-  <line x1="0" y1="140" x2="80" y2="0" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
-  <line x1="380" y1="0" x2="460" y2="140" stroke="#1a56db" stroke-width="0.6" stroke-opacity="0.3"/>
-
-  <!-- NET line bold -->
-  <line x1="230" y1="20" x2="230" y2="120" stroke="#FFD700" stroke-width="1.2" stroke-opacity="0.35"/>
-  <!-- Net diamonds -->
-  <circle cx="230" cy="70" r="3" fill="#FFD700" fill-opacity="0.4"/>
-
-  <!-- Left racket (simplified elegant) -->
-  <g transform="translate(42,70) rotate(-35)" opacity="0.55">
-    <ellipse cx="0" cy="0" rx="16" ry="20" fill="none" stroke="#c8a800" stroke-width="1.4"/>
-    <line x1="-10" y1="-14" x2="10" y2="-14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-13" y1="-7" x2="13" y2="-7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-15" y1="0" x2="15" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-13" y1="7" x2="13" y2="7" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-10" y1="14" x2="10" y2="14" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-6" y1="-19" x2="-6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="-20" x2="0" y2="20" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="6" y1="-19" x2="6" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="20" x2="0" y2="45" stroke="#c8a800" stroke-width="2.5"/>
-    <ellipse cx="0" cy="47" rx="4" ry="2" fill="#c8a800" fill-opacity="0.4"/>
-  </g>
-
-  <!-- Right racket -->
-  <g transform="translate(418,65) rotate(30)" opacity="0.5">
-    <ellipse cx="0" cy="0" rx="15" ry="19" fill="none" stroke="#c8a800" stroke-width="1.4"/>
-    <line x1="-9" y1="-13" x2="9" y2="-13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-12" y1="-6" x2="12" y2="-6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-14" y1="0" x2="14" y2="0" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-12" y1="6" x2="12" y2="6" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-9" y1="13" x2="9" y2="13" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="-6" y1="-18" x2="-6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="-19" x2="0" y2="19" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="6" y1="-18" x2="6" y2="18" stroke="#c8a800" stroke-width="0.6" stroke-opacity="0.7"/>
-    <line x1="0" y1="19" x2="0" y2="42" stroke="#c8a800" stroke-width="2.5"/>
-    <ellipse cx="0" cy="44" rx="3.5" ry="2" fill="#c8a800" fill-opacity="0.4"/>
-  </g>
-
-  <!-- Shuttlecock left -->
-  <g transform="translate(110,32)" opacity="0.6" filter="url(#blur2)">
-    <circle cx="0" cy="0" r="5" fill="none" stroke="#FFD700" stroke-width="1"/>
-    <line x1="0" y1="-5" x2="-6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
-    <line x1="0" y1="-5" x2="0" y2="-19" stroke="#FFD700" stroke-width="0.7"/>
-    <line x1="0" y1="-5" x2="6" y2="-18" stroke="#FFD700" stroke-width="0.7"/>
-    <path d="M-6,-18 Q0,-22 6,-18" stroke="#FFD700" stroke-width="0.7" fill="none"/>
-  </g>
-
-  <!-- Main text group -->
-  <g filter="url(#glow)">
-    <!-- PHT large -->
-    <text x="230" y="68" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="46" font-weight="900" fill="url(#gold)" letter-spacing="8" opacity="0.95">PHT</text>
-    <!-- BADMINTON CLUB -->
-    <text x="230" y="95" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="5" opacity="0.9">BADMINTON CLUB</text>
-  </g>
-
-  <!-- Tagline -->
-  <text x="230" y="115" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#FFD700" letter-spacing="3" opacity="0.6">OPEN · 2026</text>
-
-  <!-- Top accent line -->
-  <line x1="130" y1="28" x2="195" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
-  <line x1="265" y1="28" x2="330" y2="28" stroke="url(#gold)" stroke-width="0.8" stroke-opacity="0.5"/>
-  <!-- Diamond center top -->
-  <polygon points="230,22 234,26 230,30 226,26" fill="#FFD700" fill-opacity="0.5"/>
-</svg>
+    <svg viewBox="0 0 460 140" style="width:100%;height:140px;display:block"><use href="#phtBanner"/></svg>
     <div class="pht-hero-body">
       <div class="role-badge rb-member">👤 Thành viên</div>
       <div class="pht-title">PHT OPEN BADMINTON CLUB</div>
@@ -614,6 +454,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
     <div class="calc-hsub" id="cHSub">Nhập chi phí</div>
   </div>
   <div class="calc-body">
+    <div id="calcIn">
     <div class="two">
       <div>
         <div class="gcol-title">Chi phí</div>
@@ -643,6 +484,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
       </div>
     </div>
     <button class="btn btn-p" style="width:100%;margin-bottom:13px" onclick="tinhTien()">🌸 Tính tiền ngay</button>
+    </div><!-- /calcIn -->
     <div class="rbox2">
       <div class="rbox2-title">📊 Kết quả chia tiền</div>
       <div class="rpills">
@@ -661,6 +503,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
         <tbody id="billBody"></tbody>
       </table>
       <div class="btotal"><span class="btl">💰 Tổng thu</span><span class="btv" id="billTotal">0K</span></div>
+      <div style="font-size:11.5px;color:#b45309;font-style:italic;margin-bottom:11px">* Số tiền đã được làm tròn (đảm bảo đủ quỹ, host không bù thêm).</div>
       <div class="bqr" id="billQR">
         <div class="bqr-title">💳 Chuyển khoản cho Host</div>
         <img src="https://img.vietqr.io/image/VBA-5903205642955-compact2.png?accountName=NGUYEN%20QUOC%20THI" alt="QR Agribank" crossorigin="anonymous">
@@ -680,6 +523,7 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
         <li>Tiền sân: Nữ chia đều với Nam</li>
         <li>Tiền cầu: Nữ chịu <b id="rRatio">67%</b> so với Nam</li>
         <li>Nửa buổi: chịu 50% tổng tiền Nam</li>
+        <li>Nam làm tròn lên; Nữ làm tròn xuống, chỉ lên khi quỹ bị thiếu</li>
       </ul>
     </div>
     <button class="btn btn-s" style="width:100%" onclick="goBack()">⬅ Quay lại</button>
@@ -688,8 +532,9 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
 
 </div><!-- .app -->
 <script>
-const H_HOST=hs("1Cvxr2cc"),H_MEM=hs("PHTthanglon");
-let role=null,fromPg="home",docId=null,viewNgay=null,boNho=[],dataVL=[];
+const H_HOST="-wlf2gc",H_MEM="8arpj5";
+let role=null,fromPg="home",docId=null,viewNgay=null,boNho=[],dataVL=[],draftDirty=false;
+window.addEventListener("beforeunload",function(e){if(draftDirty){e.preventDefault();e.returnValue=""}});
 const DS=[
   {t:"Thi",g:"nam"},{t:"Thư",g:"nu"},{t:"Hùng",g:"nam"},{t:"C Phước",g:"nu"},
   {t:"A Hoà",g:"nam"},{t:"Hà",g:"nu"},{t:"Phúc e",g:"nam"},{t:"Phúc chị",g:"nam"},
@@ -701,6 +546,8 @@ const DS=[
 let sp=DS.map(m=>({...m,dd:false,nb:false}));
 
 function hs(s){if(!s)return"";let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(36)}
+function esc(x){return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
+function jsq(x){return String(x).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
 function toast(m,d=2800){let e=document.getElementById("toast");e.textContent=m;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),d)}
 function load(m="Đang xử lý..."){document.getElementById("ovMsg").textContent=m;document.getElementById("ov").classList.add("show")}
 function unload(){document.getElementById("ov").classList.remove("show")}
@@ -737,7 +584,7 @@ window.onload=function(){
   });
   // VL
   let vl=document.getElementById("vlList");
-  for(let i=1;i<=7;i++){
+  for(let i=1;i<=10;i++){
     let d=document.createElement("div");d.className="vlrow";
     d.innerHTML=`<span class="vll">VL${i}</span><input class="mname" id="vl_${i}" type="text" placeholder="Tên khách..."><div class="tbtns"><input type="radio" name="vt_${i}" id="vnam_${i}" value="nam" checked><label for="vnam_${i}" class="lnam">👦</label><input type="radio" name="vt_${i}" id="vnu_${i}" value="nu"><label for="vnu_${i}" class="lnu">👧</label><input type="radio" name="vt_${i}" id="vnb_${i}" value="nb"><label for="vnb_${i}" class="lnb">🕒</label></div>`;
     vl.appendChild(d);
@@ -752,7 +599,7 @@ function vaoPhongPHT(){
   let p=prompt("🔐 Nhập mật khẩu CLB PHT:");
   if(p===null)return;
   let h=hs(p);
-  if(h===H_HOST){role="host";pg("pgPHT");loadHost();document.getElementById("btnClearAll").style.display="inline-block"}
+  if(h===H_HOST){role="host";pg("pgPHT");loadHost();document.getElementById("btnClearAll").style.display="inline-block";document.getElementById("btnCheckNo").style.display="inline-block"}
   else if(h===H_MEM){role="member";pg("pgMember");loadMember()}
   else toast("❌ Sai mật khẩu!");
 }
@@ -771,7 +618,7 @@ function renderPHT(i){
 function countPHT(){
   let n=0,nu=0,nb=0;dataVL=[];
   sp.forEach(m=>{if(!m.dd)return;if(m.nb)nb++;else if(m.g==="nam")n++;else nu++});
-  for(let i=1;i<=7;i++){
+  for(let i=1;i<=10;i++){
     let t=document.getElementById("vl_"+i).value.trim();if(!t)continue;
     let isNB=document.getElementById("vnb_"+i).checked,isNam=document.getElementById("vnam_"+i).checked;
     dataVL.push({t,g:isNam?"nam":"nu",nb:isNB});
@@ -782,7 +629,7 @@ function countPHT(){
 function goPHT(){
   let{n,nu,nb}=countPHT();
   if(!sp.some(m=>m.dd)&&dataVL.length===0){toast("⚠️ Chưa chọn thành viên nào!");return}
-  fromPg="pht";docId=null;viewNgay=null;
+  fromPg="pht";docId=null;viewNgay=null;draftDirty=false;calcIn(true);
   document.getElementById("iNam").value=n;document.getElementById("iNu").value=nu;document.getElementById("iNB").value=nb;
   document.getElementById("cHTitle").textContent="🔥 PHT Open — Tính Tiền";
   document.getElementById("cHSub").textContent=ngay(document.getElementById("dPHT").value);
@@ -794,14 +641,14 @@ function goCongKhai(){
   let n=0,nu=0,nb=0,co=false;
   for(let i=1;i<=30;i++){let t=document.getElementById("mn_"+i).value.trim();if(!t)continue;co=true;if(document.getElementById("mnam_"+i).checked)n++;else if(document.getElementById("mnu_"+i).checked)nu++;else nb++}
   if(!co){toast("⚠️ Chưa nhập tên!");return}
-  fromPg="home";docId=null;viewNgay=null;
+  fromPg="home";docId=null;viewNgay=null;draftDirty=false;calcIn(true);
   document.getElementById("iNam").value=n;document.getElementById("iNu").value=nu;document.getElementById("iNB").value=nb;
   document.getElementById("cHTitle").textContent="💰 Tính Tiền Cầu Lông";
   document.getElementById("cHSub").textContent=ngay(document.getElementById("dPub").value);
   pg("pgCalc");
 }
 function skip(){
-  fromPg="home";docId=null;viewNgay=null;
+  fromPg="home";docId=null;viewNgay=null;draftDirty=false;calcIn(true);
   ["iNam","iNu","iNB"].forEach(id=>document.getElementById(id).value=0);
   document.getElementById("billBox").style.display="none";
   document.getElementById("btnCloud").style.display="none";
@@ -810,7 +657,16 @@ function skip(){
   document.getElementById("cHSub").textContent="Nhập số liệu và tính";
   pg("pgCalc");
 }
-function goBack(){pg(fromPg==="pht"?"pgPHT":"pgHome")}
+function goBack(){
+  if(draftDirty&&fromPg==="pht"&&role==="host"){
+    if(!confirm("⚠️ Bill nháp CHƯA lưu cloud!\nRời trang sẽ mất trạng thái tick đã đóng tiền.\nVẫn thoát?"))return;
+    draftDirty=false;
+  }
+  if(fromPg==="pht")pg("pgPHT");
+  else if(fromPg==="member")pg("pgMember");
+  else pg("pgHome");
+}
+function calcIn(show){document.getElementById("calcIn").style.display=show?"":"none"}
 
 // TÍNH TIỀN
 function tinhTien(isHist=false,dsHist=null){
@@ -823,7 +679,19 @@ function tinhTien(isHist=false,dsHist=null){
   document.getElementById("rRatio").textContent=rtxt;
   let mS=soN+soNu+.5*soNB,mC=soN+ratio*soNu+.5*soNB;
   let pS=mS>0?san/mS:0,pC=mC>0?(cau+cauLe)/mC:0;
-  let kN=soN>0?Math.ceil((pS+pC)/1000):0,kNu=soNu>0?Math.floor((pS+pC*ratio)/1000):0,kNB=soNB>0?Math.round(kN/2):0;
+  // LUẬT C: Nam luôn tròn lên; Nửa buổi = ceil(Nam/2); Nữ mặc định tròn XUỐNG,
+  // chỉ tròn LÊN khi để xuống thì tổng thu không đủ bù chi phí (host không bao giờ lỗ).
+  let fullRateK=(pS+pC)/1000;                 // suất đầy đủ (như 1 Nam), luôn hợp lệ kể cả khi vắng Nam
+  let kN=soN>0?Math.ceil(fullRateK):0;
+  let kNB=soNB>0?(soN>0?Math.ceil(kN/2):Math.ceil(fullRateK/2)):0; // vắng Nam: nửa buổi = nửa suất đầy đủ
+  let nuRawK=(pS+pC*ratio)/1000;
+  let kNu=0;
+  if(soNu>0){
+    let nuDown=Math.floor(nuRawK),nuUp=Math.ceil(nuRawK);
+    let chiPhi=san+cau+cauLe;
+    let thuNeuXuong=soN*kN*1000+soNu*nuDown*1000+soNB*kNB*1000;
+    kNu=(thuNeuXuong>=chiPhi)?nuDown:nuUp;
+  }
   document.getElementById("rNam").textContent=kN?kN+"K":"—";
   document.getElementById("rNu").textContent=kNu?kNu+"K":"—";
   document.getElementById("rNB").textContent=kNB?kNB+"K":"—";
@@ -840,7 +708,7 @@ function tinhTien(isHist=false,dsHist=null){
       boNho=dsHist;
       dsHist.forEach(it=>{
         let dis=role==="host"?"":"disabled",chk=it.daDongTien?"checked":"",op=it.daDongTien?'style="opacity:.5"':"";
-        tbody.innerHTML+=`<tr ${op}><td><b>${it.ten}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${chk} ${dis} onchange="tick('${it.ten}',this)"></td></tr>`;
+        tbody.innerHTML+=`<tr ${op}><td><b>${esc(it.ten)}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${chk} ${dis} onchange="tick('${esc(jsq(it.ten))}',this)"></td></tr>`;
         total+=it.soTienK;
       });
     }else{
@@ -856,11 +724,12 @@ function tinhTien(isHist=false,dsHist=null){
       });
       boNho.forEach(it=>{
         let dis=role==="host"?"":"disabled";
-        tbody.innerHTML+=`<tr><td><b>${it.ten}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${dis} onchange="tick('${it.ten}',this)"></td></tr>`;
+        tbody.innerHTML+=`<tr><td><b>${esc(it.ten)}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${dis} onchange="tick('${esc(jsq(it.ten))}',this)"></td></tr>`;
         total+=it.soTienK;
       });
     }
     document.getElementById("btnCloud").style.display=(!isHist&&role==="host")?"flex":"none";
+    if(!isHist&&role==="host")draftDirty=true;
   }else{
     thChk.style.display="none";
     document.getElementById("billTitle").textContent="💸 Danh sách đóng tiền";
@@ -870,7 +739,7 @@ function tinhTien(isHist=false,dsHist=null){
       if(document.getElementById("mnam_"+i).checked){vr="👦 Nam";k=kN}
       else if(document.getElementById("mnu_"+i).checked){vr="👧 Nữ";k=kNu}
       else{vr="🕒 Nửa buổi";k=kNB}
-      tbody.innerHTML+=`<tr><td><b>${t}</b></td><td style="font-size:12px">${vr}</td><td class="bptd">${k}K</td></tr>`;
+      tbody.innerHTML+=`<tr><td><b>${esc(t)}</b></td><td style="font-size:12px">${vr}</td><td class="bptd">${k}K</td></tr>`;
       total+=k;
     }
     document.getElementById("btnCloud").style.display="none";
@@ -882,6 +751,72 @@ function tinhTien(isHist=false,dsHist=null){
 }
 
 // FIREBASE
+
+// ===== Tự xoá bill ĐÃ ĐÓNG ĐỦ & quá 1 tháng =====
+function parseNgay(nd){ // "dd-mm-yyyy" -> Date
+  let m=/^(\d{2})-(\d{2})-(\d{4})$/.exec(nd||"");
+  if(m)return new Date(+m[3],+m[2]-1,+m[1]);
+  return null;
+}
+async function donBillCu(snap){
+  if(role!=="host")return snap;
+  let{doc,deleteDoc}=window._fb;
+  let now=Date.now(),MS30=30*24*60*60*1000,daXoa=0,giuLai=[];
+  for(let d of snap.docs){
+    let h=d.data();
+    let ds=h.danhSachChiTiet||[];
+    let dongDu=ds.length>0 && ds.every(x=>x.daDongTien===true);
+    // mốc thời gian: ưu tiên ngày sinh hoạt, fallback timestamp lưu
+    let dt=parseNgay(h.ngay); let moc=dt?dt.getTime():(h.timestamp||now);
+    if(dongDu && (now-moc)>MS30){
+      try{await deleteDoc(doc(window._db,"pht_bills",d.id));daXoa++}catch(e){giuLai.push(d)}
+    }else{giuLai.push(d)}
+  }
+  if(daXoa>0)toast("🧹 Đã tự dọn "+daXoa+" bill cũ (đã đóng đủ >1 tháng)");
+  return {empty:giuLai.length===0, docs:giuLai, forEach:cb=>giuLai.forEach(cb)};
+}
+
+// ===== CHECK NỢ: dò mọi bill, gom người chưa tích đóng tiền =====
+async function checkNo(){
+  if(role!=="host"){toast("🔒 Chỉ Host!");return}
+  if(!window._fbReady){toast("⚠️ Chưa kết nối Firebase!");return}
+  load("🔍 Đang dò công nợ...");
+  try{
+    let{collection,getDocs,query,orderBy}=window._fb;
+    let q=query(collection(window._db,"pht_bills"),orderBy("timestamp","desc"));
+    let snap=await getDocs(q);
+    unload();
+    // gom theo tên: {ten:{tong, rows:[{ngay,soTienK}]}}
+    let map={},grand=0,cnt=0;
+    snap.forEach(d=>{
+      let h=d.data();
+      (h.danhSachChiTiet||[]).forEach(it=>{
+        if(it.daDongTien)return;
+        let k=it.soTienK||0;
+        if(!map[it.ten])map[it.ten]={tong:0,rows:[]};
+        map[it.ten].tong+=k;
+        map[it.ten].rows.push({ngay:h.ngay,k});
+        grand+=k;cnt++;
+      });
+    });
+    let body=document.getElementById("noBody");
+    let names=Object.keys(map).sort((a,b)=>map[b].tong-map[a].tong);
+    if(!names.length){
+      body.innerHTML='<div class="noEmpty">🎉 Tất cả đã đóng đủ!<br>Không còn ai nợ.</div>';
+    }else{
+      let html=`<div class="noSum"><div class="noSumBig">${grand}K</div><div class="noSumSub">${names.length} người · ${cnt} lượt chưa đóng</div></div>`;
+      names.forEach(n=>{
+        let p=map[n];
+        let rows=p.rows.map(r=>`<div class="noPRow"><span>📅 ${esc(r.ngay)}</span><span>${r.k}K</span></div>`).join("");
+        html+=`<div class="noPerson"><div class="noPHdr"><span class="noPName">${esc(n)}</span><span class="noPTot">${p.tong}K</span></div>${rows}</div>`;
+      });
+      body.innerHTML=html;
+    }
+    document.getElementById("noModal").classList.add("show");
+  }catch(e){unload();toast("❌ Lỗi: "+e.message)}
+}
+function closeNo(){document.getElementById("noModal").classList.remove("show")}
+
 async function loadHost(){
   if(!window._fbReady)return;
   let c=document.getElementById("hListHost");
@@ -890,6 +825,7 @@ async function loadHost(){
     let{collection,getDocs,query,orderBy}=window._fb;
     let q=query(collection(window._db,"pht_bills"),orderBy("timestamp","desc"));
     let snap=await getDocs(q);setCloud("online");
+    snap=await donBillCu(snap);
     if(snap.empty){c.innerHTML='<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">Chưa có bill nào.</div>';return}
     c.innerHTML="";
     snap.forEach(d=>{
@@ -928,7 +864,7 @@ async function xemBill(id){
     viewNgay=h.ngay;docId=id;boNho=h.danhSachChiTiet||[];
     document.getElementById("iSan").value=h.tienSan||0;document.getElementById("iCau").value=h.tienCau||0;document.getElementById("iCauLe").value=h.tienCauLe||0;
     document.getElementById("iNam").value=h.soNam||0;document.getElementById("iNu").value=h.soNu||0;document.getElementById("iNB").value=h.soNuaBuoi||0;
-    fromPg="pht";document.getElementById("cHTitle").textContent="👁 Xem lại Bill PHT";document.getElementById("cHSub").textContent=h.ngay;
+    fromPg="pht";calcIn(true);document.getElementById("cHTitle").textContent="👁 Xem lại Bill PHT";document.getElementById("cHSub").textContent=h.ngay;
     tinhTien(true,h.danhSachChiTiet);pg("pgCalc");
   }catch(e){unload();toast("❌ "+e.message)}
 }
@@ -943,7 +879,7 @@ async function xemBillMem(id){
     viewNgay=h.ngay;docId=id;
     document.getElementById("iSan").value=h.tienSan||0;document.getElementById("iCau").value=h.tienCau||0;document.getElementById("iCauLe").value=h.tienCauLe||0;
     document.getElementById("iNam").value=h.soNam||0;document.getElementById("iNu").value=h.soNu||0;document.getElementById("iNB").value=h.soNuaBuoi||0;
-    fromPg="pht";document.getElementById("cHTitle").textContent="📋 Bill CLB — Thành viên";document.getElementById("cHSub").textContent=h.ngay;
+    fromPg="member";calcIn(false);document.getElementById("cHTitle").textContent="📋 Bill CLB — Thành viên";document.getElementById("cHSub").textContent=h.ngay;
     tinhTien(true,h.danhSachChiTiet);pg("pgCalc");
   }catch(e){unload();toast("❌ "+e.message)}
 }
@@ -958,9 +894,20 @@ async function luuCloud(){
   try{
     let{collection,addDoc,getDocs,query,where,deleteDoc,doc}=window._fb;
     let q=query(collection(window._db,"pht_bills"),where("ngay","==",nd));
-    let old=await getDocs(q);for(let d of old.docs)await deleteDoc(doc(window._db,"pht_bills",d.id));
+    let old=await getDocs(q);
+    if(!old.empty){
+      unload();
+      if(!confirm("📅 Ngày "+nd+" đã có bill trên cloud.\nGhi đè bill mới? (Ai đã tick đóng tiền sẽ được giữ nguyên theo tên)"))return;
+      load("☁️ Đang lưu...");
+    }
+    let oldTicks={};
+    for(let d of old.docs){
+      (d.data().danhSachChiTiet||[]).forEach(x=>{if(x.daDongTien)oldTicks[x.ten]=true});
+      await deleteDoc(doc(window._db,"pht_bills",d.id));
+    }
+    boNho.forEach(x=>{if(oldTicks[x.ten])x.daDongTien=true});
     await addDoc(collection(window._db,"pht_bills"),{ngay:nd,tienSan:san,tienCau:cau,tienCauLe:cauLe,soNam:+document.getElementById("iNam").value||0,soNu:+document.getElementById("iNu").value||0,soNuaBuoi:+document.getElementById("iNB").value||0,danhSachChiTiet:boNho,timestamp:Date.now()});
-    unload();toast("✅ Đã lưu bill ngày "+nd+"!");loadHost();
+    unload();draftDirty=false;toast("✅ Đã lưu bill ngày "+nd+"!");loadHost();
   }catch(e){unload();toast("❌ Lỗi: "+e.message)}
 }
 
