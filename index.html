@@ -140,10 +140,10 @@ body{font-family:"Be Vietnam Pro","Segoe UI",sans-serif;background:var(--bg);min
 .pchk{width:15px;height:15px;cursor:pointer;accent-color:var(--primary);flex-shrink:0}
 .pname{font-size:12.5px;font-weight:600;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
-.gico.gnam{background:#e6f1fb}
-.gico.gnu{background:#fbeaf0}
-.nbico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;border:0.5px solid var(--border);background:#f8fafc;cursor:pointer;color:#94a3b8}
-.nbico.on{background:var(--gold-bg);border-color:var(--gold);color:#92400e}
+.gico.gnam{background:#7cb2f0;border:1px solid #3b82f6}
+.gico.gnu{background:#f78fc2;border:1px solid #ec4899}
+.nbico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;border:0.5px solid var(--border);background:#fff;cursor:pointer;opacity:.45}
+.nbico.on{background:var(--gold-bg);border-color:var(--gold);opacity:1}
 @media(max-width:360px){#phtList{grid-template-columns:1fr}}
 /* Panel quản lý thành viên */
 .mmOv{position:fixed;inset:0;background:rgba(15,32,64,.55);backdrop-filter:blur(3px);z-index:9997;display:none;align-items:flex-end;justify-content:center}
@@ -161,7 +161,7 @@ body{font-family:"Be Vietnam Pro","Segoe UI",sans-serif;background:var(--bg);min
 .mmAdd{background:#0f2040;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;padding:0 14px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:inherit}
 .mItem{display:flex;align-items:center;gap:10px;background:#fff;border:0.5px solid var(--border);border-radius:11px;padding:8px 10px;margin-bottom:6px}
 .mAv{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700}
-.mAv.gnam{background:#e6f1fb;color:#185fa5}.mAv.gnu{background:#fbeaf0;color:#993556}
+.mAv.gnam{background:#7cb2f0;color:#0c3f7a}.mAv.gnu{background:#f78fc2;color:#7a1f47}
 .mMeta{flex:1;min-width:0}
 .mNm{font-size:14px;font-weight:600;color:var(--text)}
 .mSub{font-size:11px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -708,9 +708,65 @@ function renderQuanLy(loc=""){
       <div class="mmSearch">🔍<input id="mmSearch" placeholder="Tìm tên..." value="${esc(loc)}" oninput="renderQuanLy(this.value)"></div>
       <button class="mmAdd" onclick="formThanhVien(null)">➕ Thêm</button>
     </div>
+    <button onclick="renderThongKe()" style="width:100%;margin-bottom:11px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit">📊 Bảng thống kê · Xếp hạng cuối năm 🏆</button>
     ${rows||'<div style="padding:20px;text-align:center;color:var(--text3);font-size:12.5px">Không tìm thấy.</div>'}`;
   // giữ focus ô tìm
   if(loc){let si=document.getElementById("mmSearch");si.focus();si.setSelectionRange(loc.length,loc.length)}
+}
+
+
+function renderThongKe(){
+  document.getElementById("mmTitle").textContent="📊 Thống kê thành viên";
+  document.getElementById("mmSubT").textContent="Xếp theo điểm đánh giá · cuối năm phát thưởng";
+  let arr=[...membersCloud].sort((a,b)=>b.dg-a.dg||a.t.localeCompare(b.t,"vi"));
+  let medal=["🥇","🥈","🥉"];
+  function scoreC(v){if(v>=8)return["#eaf3de","#3b6d11"];if(v>=6)return["#e1f5ee","#0f6e56"];if(v>=4)return["#faeeda","#854f0b"];return["#f1efe8","#5f5e5a"]}
+  let soNam=membersCloud.filter(m=>m.g==="nam").length, soNu=membersCloud.length-soNam;
+  let diemTB=membersCloud.length?(membersCloud.reduce((s,m)=>s+m.dg,0)/membersCloud.length).toFixed(1):0;
+  let rows=arr.map((m,i)=>{
+    let age=tuoiTu(m.ns);let[sb,st]=scoreC(m.dg);
+    let rank=medal[i]||`<span style="color:var(--text3);font-size:12px">${i+1}</span>`;
+    let top=i<3?"background:#fffdf5":"";
+    return `<tr style="${top}">
+      <td style="text-align:center;width:34px;padding:8px 4px">${rank}</td>
+      <td style="padding:8px 4px"><b>${esc(m.t)}</b> ${m.g==="nam"?"👦":"👧"}</td>
+      <td style="text-align:center;padding:8px 4px;color:var(--text2)">${age||"—"}</td>
+      <td style="text-align:center;padding:8px 4px"><span class="mLv">${m.lv}</span></td>
+      <td style="text-align:center;padding:8px 4px"><span style="display:inline-block;min-width:26px;padding:2px 0;border-radius:6px;font-weight:700;background:${sb};color:${st}">${m.dg}</span></td>
+    </tr>`;
+  }).join("");
+  document.getElementById("mmBody").innerHTML=`
+    <div id="tkCapture" style="background:#fff;padding:4px">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;background:#eff6ff;border-radius:10px;padding:9px;text-align:center"><div style="font-size:20px;font-weight:800;color:#1d4ed8">${membersCloud.length}</div><div style="font-size:10px;color:var(--text3)">thành viên</div></div>
+        <div style="flex:1;background:#f0fdf4;border-radius:10px;padding:9px;text-align:center"><div style="font-size:20px;font-weight:800;color:#15803d">${soNam}👦 ${soNu}👧</div><div style="font-size:10px;color:var(--text3)">nam · nữ</div></div>
+        <div style="flex:1;background:#fef3c7;border-radius:10px;padding:9px;text-align:center"><div style="font-size:20px;font-weight:800;color:#b45309">${diemTB}</div><div style="font-size:10px;color:var(--text3)">điểm TB</div></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="border-bottom:1.5px solid var(--border)">
+          <th style="padding:6px 4px;color:var(--text3);font-size:11px">#</th>
+          <th style="padding:6px 4px;text-align:left;color:var(--text3);font-size:11px">Tên</th>
+          <th style="padding:6px 4px;color:var(--text3);font-size:11px">Tuổi</th>
+          <th style="padding:6px 4px;color:var(--text3);font-size:11px">Trình độ</th>
+          <th style="padding:6px 4px;color:var(--text3);font-size:11px">Điểm</th>
+        </tr></thead>
+        <tbody>${rows||'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--text3)">Chưa có thành viên</td></tr>'}</tbody>
+      </table>
+      <div style="text-align:center;font-size:10px;color:var(--text3);margin-top:8px">PHT Open Badminton Club · Tổng kết ${new Date().getFullYear()} 🏸</div>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:14px">
+      <button class="btn btn-s" style="flex:1" onclick="renderQuanLy()">⬅ Quay lại</button>
+      <button class="btn btn-p" style="flex:1.4" onclick="luuThongKeAnh()">📸 Lưu ảnh bảng</button>
+    </div>`;
+}
+function luuThongKeAnh(){
+  let t=document.getElementById("tkCapture");
+  html2canvas(t,{backgroundColor:"#fff",scale:2,logging:false}).then(c=>{
+    let a=document.createElement("a");a.href=c.toDataURL("image/png");
+    a.download="PHT_ThongKe_"+new Date().getFullYear()+".png";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    toast("📸 Đã lưu ảnh thống kê!");
+  }).catch(()=>toast("❌ Lỗi chụp ảnh!"));
 }
 
 function formThanhVien(id){
