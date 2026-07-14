@@ -297,6 +297,23 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
 .noPRow{display:flex;justify-content:space-between;padding:7px 13px;font-size:13px;border-top:1px dashed #fee2e2;color:#555}
 .noPRow span:last-child{font-weight:700;color:#b45309}
 .noEmpty{text-align:center;padding:30px 16px;color:#16a34a;font-size:15px;font-weight:600}
+
+/* ===== Banner phụ giải đấu (dễ tháo sau giải) ===== */
+.champBanner{background:#226045;border:1.5px solid #e0a92d;border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:14px;transition:all .15s;position:relative;overflow:hidden}
+.champBanner:active{transform:scale(.98)}
+.champIco{width:44px;height:44px;border-radius:11px;background:#e0a92d;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px}
+.champTx{flex:1;min-width:0}
+.champName{color:#fff;font-size:14.5px;font-weight:800;line-height:1.25}
+.champSub{color:#c8e64c;font-size:11.5px;margin-top:2px;font-style:italic}
+.champArr{color:#c8e64c;font-size:20px;flex-shrink:0}
+.csOv{position:fixed;inset:0;background:rgba(15,32,64,.6);backdrop-filter:blur(3px);z-index:9996;display:none;align-items:center;justify-content:center;padding:24px}
+.csOv.show{display:flex}
+.csBox{background:#fff;border-radius:18px;padding:26px 22px;text-align:center;max-width:300px;animation:mmUp .28s ease}
+.csIco{font-size:44px}
+.csTitle{font-size:19px;font-weight:800;color:var(--text);margin-top:8px}
+.csMsg{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5}
+.csDate{display:inline-block;background:#fef3c7;color:#b45309;font-weight:700;font-size:13px;border-radius:20px;padding:5px 16px;margin-top:12px}
+.csBtn{margin-top:16px;width:100%;background:#226045;color:#fff;border:none;border-radius:11px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
@@ -409,6 +426,17 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
 <div class="toast" id="toast"></div>
 
 <!-- PANEL QUẢN LÝ THÀNH VIÊN -->
+<!-- COMING SOON (giải đấu) -->
+<div class="csOv" id="csOv" onclick="if(event.target===this)dongComingSoon()">
+  <div class="csBox">
+    <div class="csIco">⏳</div>
+    <div class="csTitle">Coming soon!</div>
+    <div class="csMsg">Giải đấu đang được chuẩn bị.</div>
+    <div class="csDate">📅 Vui lòng quay lại vào ngày 10/08</div>
+    <button class="csBtn" onclick="dongComingSoon()">Đã hiểu</button>
+  </div>
+</div>
+
 <div class="mmOv" id="mmOv" onclick="if(event.target===this)dongQuanLy()">
   <div class="mmBox">
     <div class="mmHdr">
@@ -468,6 +496,14 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
     </div>
   </div>
   <div class="body">
+    <div class="champBanner" onclick="moGiaiDau()">
+      <span class="champIco">🏆</span>
+      <div class="champTx">
+        <div class="champName">PHT Badminton Club<br>Championship II</div>
+        <div class="champSub">Giải đấu nội bộ · 2026</div>
+      </div>
+      <span class="champArr">›</span>
+    </div>
     <div class="card"><div class="ctitle">👥 Thành viên cố định</div><div id="phtList"></div></div>
     <div class="vls"><div class="vlt">🏃 Khách vãng lai</div><div id="vlList"></div></div>
     <div class="drow" style="margin:0 0 13px"><label>📅 Ngày sinh hoạt</label><input type="date" id="dPHT"></div>
@@ -496,6 +532,14 @@ input[type=checkbox].tick:disabled{cursor:not-allowed;opacity:.4}
     </div>
   </div>
   <div class="body">
+    <div class="champBanner" onclick="moGiaiDau()">
+      <span class="champIco">🏆</span>
+      <div class="champTx">
+        <div class="champName">PHT Badminton Club<br>Championship II</div>
+        <div class="champSub">Giải đấu nội bộ · 2026</div>
+      </div>
+      <span class="champArr">›</span>
+    </div>
     <div class="hcard">
       <div class="hhdr"><div class="htitle">📋 Lịch sử Bill CLB</div><button class="bview" onclick="loadMember()">🔄 Tải lại</button></div>
       <div class="hlist" id="hListMember"><div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">☁️ Đang tải...</div></div>
@@ -648,6 +692,14 @@ window.onload=function(){
   document.getElementById("dPHT").value=today;
 };
 
+
+
+// ===== Banner giải đấu: phân quyền theo role =====
+function moGiaiDau(){
+  if(role==="host"){ location.href="championship.html"; }
+  else { document.getElementById("csOv").classList.add("show"); }
+}
+function dongComingSoon(){ document.getElementById("csOv").classList.remove("show"); }
 
 // ================= QUẢN LÝ THÀNH VIÊN (Firebase) =================
 async function napThanhVien(){
