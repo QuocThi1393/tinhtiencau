@@ -1023,9 +1023,10 @@ function tinhTien(isHist=false,dsHist=null){
     showQR=true;
     if(isHist&&dsHist){
       boNho=dsHist;
-      dsHist.forEach(it=>{
+      boNho.forEach((it,idx)=>it.id=idx); // gắn id theo vị trí — chống lỗi trùng tên
+      boNho.forEach(it=>{
         let dis=role==="host"?"":"disabled",chk=it.daDongTien?"checked":"",op=it.daDongTien?'style="opacity:.5"':"";
-        tbody.innerHTML+=`<tr ${op}><td><b>${esc(it.ten)}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${chk} ${dis} onchange="tick('${esc(jsq(it.ten))}',this)"></td></tr>`;
+        tbody.innerHTML+=`<tr ${op}><td><b>${esc(it.ten)}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${chk} ${dis} onchange="tick(${it.id},this)"></td></tr>`;
         total+=it.soTienK;
       });
     }else{
@@ -1039,9 +1040,10 @@ function tinhTien(isHist=false,dsHist=null){
         let vr=m.nb?"🕒 VL (Nửa buổi)":m.g==="nam"?"👦 VL (Nam)":"👧 VL (Nữ)",k=m.nb?kNB:m.g==="nam"?kN:kNu;
         boNho.push({ten:m.t+" (VL)",vaiTro:vr,soTienK:k,daDongTien:false});
       });
+      boNho.forEach((it,idx)=>it.id=idx); // gắn id theo vị trí — chống lỗi trùng tên
       boNho.forEach(it=>{
         let dis=role==="host"?"":"disabled";
-        tbody.innerHTML+=`<tr><td><b>${esc(it.ten)}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${dis} onchange="tick('${esc(jsq(it.ten))}',this)"></td></tr>`;
+        tbody.innerHTML+=`<tr><td><b>${esc(it.ten)}</b></td><td style="font-size:12px">${it.vaiTro}</td><td class="bptd">${it.soTienK}K</td><td class="bctd"><input type="checkbox" class="tick" ${dis} onchange="tick(${it.id},this)"></td></tr>`;
         total+=it.soTienK;
       });
     }
@@ -1217,20 +1219,28 @@ async function luuCloud(){
       if(!confirm("📅 Ngày "+nd+" đã có bill trên cloud.\nGhi đè bill mới? (Ai đã tick đóng tiền sẽ được giữ nguyên theo tên)"))return;
       load("☁️ Đang lưu...");
     }
-    let oldTicks={};
+    let oldAll=[];
     for(let d of old.docs){
-      (d.data().danhSachChiTiet||[]).forEach(x=>{if(x.daDongTien)oldTicks[x.ten]=true});
+      oldAll=oldAll.concat(d.data().danhSachChiTiet||[]);
       await deleteDoc(doc(window._db,"pht_bills",d.id));
     }
-    boNho.forEach(x=>{if(oldTicks[x.ten])x.daDongTien=true});
+    // Ghép người cũ -> người mới theo TÊN + đúng thứ tự xuất hiện (an toàn cho tên trùng, không đánh đồng cả 2 dòng)
+    let oldGroups={};
+    oldAll.forEach(x=>{(oldGroups[x.ten]=oldGroups[x.ten]||[]).push(!!x.daDongTien)});
+    let seenCount={};
+    boNho.forEach(x=>{
+      let i=seenCount[x.ten]||0; seenCount[x.ten]=i+1;
+      if(oldGroups[x.ten]&&oldGroups[x.ten][i]!==undefined) x.daDongTien=oldGroups[x.ten][i];
+    });
     await addDoc(collection(window._db,"pht_bills"),{ngay:nd,tienSan:san,tienCau:cau,tienCauLe:cauLe,soNam:+document.getElementById("iNam").value||0,soNu:+document.getElementById("iNu").value||0,soNuaBuoi:+document.getElementById("iNB").value||0,danhSachChiTiet:boNho,timestamp:Date.now()});
     unload();draftDirty=false;toast("✅ Đã lưu bill ngày "+nd+"!");loadHost();
   }catch(e){unload();toast("❌ Lỗi: "+e.message)}
 }
 
-async function tick(ten,el){
+async function tick(id,el){
   if(role!=="host"){toast("🔒 Chỉ Host tích được!");el.checked=!el.checked;return}
-  let m=boNho.find(x=>x.ten===ten);if(m)m.daDongTien=el.checked;
+  let m=boNho.find(x=>x.id===id);if(m)m.daDongTien=el.checked;
+  let ten=m?m.ten:"";
   let row=el.closest("tr");if(row)row.style.opacity=el.checked?".5":"1";
   if(docId&&window._fbReady){
     try{
