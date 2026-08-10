@@ -127,6 +127,22 @@
   .savemsg{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:9px 20px;border-radius:24px;font-size:13.5px;transition:transform .25s;z-index:60}
   .savemsg.show{transform:translateX(-50%) translateY(0)}
 </style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app = initializeApp({
+  apiKey:"AIzaSyDf3OZzCq6Dh0k_748klamwpIxS4tDAJ-E",
+  authDomain:"phtbadminton.firebaseapp.com",
+  projectId:"phtbadminton",
+  storageBucket:"phtbadminton.firebasestorage.app",
+  messagingSenderId:"861078516981",
+  appId:"1:861078516981:web:9c69295874d742358481bc"
+});
+window._db=getFirestore(app);
+window._fb={doc,getDoc,setDoc,onSnapshot};
+window._fbReady=true;
+window.dispatchEvent(new Event("fbReady"));
+</script>
 </head>
 <body>
 
@@ -134,7 +150,7 @@
   <div class="net"></div>
   <h1>🏆 PHT Badminton Club Championship II 🏆</h1>
   <div class="slogan">“Quan trọng không phải là chiến thắng, quan trọng là Important”</div>
-  <div class="date">NGÀY 05 · 09 · 2026</div>
+  <div class="date">NGÀY 12 · 09 · 2026</div>
 </div>
 
 <div class="tabs wrap">
@@ -147,7 +163,7 @@
 
 <div class="tab show" id="tab-setup">
   <div class="savebar">
-    <div class="st">💾 Tự động lưu trên máy này — <b id="savetime">chưa có thay đổi</b></div>
+    <div class="st">💾 <span id="cloudTag" style="background:#fdf1e6;color:#d97b29;font-weight:700;border-radius:11px;padding:3px 9px;font-size:12px">🔄 Đang kết nối…</span> <b id="savetime" style="margin-left:6px">chưa có thay đổi</b></div>
     <button class="exp" onclick="exportBackup()">⬇ Sao lưu file</button>
     <button class="imp" onclick="document.getElementById('importfile').click()">⬆ Khôi phục</button>
     <input type="file" id="importfile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
@@ -169,6 +185,15 @@
       <div class="bar"><i id="prog-bar" style="width:0%"></i></div>
     </div>
     <p class="hint" style="margin:6px 0 0">Mỗi cặp đấu gồm 3 trận: nữ + nam 1, nữ + nam 2, và đôi nam. Nhập tỉ số là bảng xếp hạng tự cập nhật, dữ liệu tự lưu ngay.</p>
+  </div>
+  <div class="card" style="border-left:5px solid #d97b29">
+    <h2 style="margin:0 0 4px">🧑‍⚖️ Trang trọng tài</h2>
+    <p class="hint" style="margin:0 0 11px">Mỗi sân một link riêng. Trọng tài mở link, nhập mật khẩu sân, bấm điểm — tỉ số hiện ngay ở đây.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="referee.html?court=1" style="flex:1;min-width:96px;text-decoration:none;background:#226045;color:#fff;font-weight:700;font-size:14px;border-radius:11px;padding:11px 8px;text-align:center">Sân 1 →</a>
+      <a href="referee.html?court=2" style="flex:1;min-width:96px;text-decoration:none;background:#226045;color:#fff;font-weight:700;font-size:14px;border-radius:11px;padding:11px 8px;text-align:center">Sân 2 →</a>
+      <a href="referee.html?court=3" style="flex:1;min-width:96px;text-decoration:none;background:#226045;color:#fff;font-weight:700;font-size:14px;border-radius:11px;padding:11px 8px;text-align:center">Sân 3 →</a>
+    </div>
   </div>
   <div id="match-list"></div>
 </div>
@@ -224,20 +249,66 @@ function defaultState(){
   }));
   return {teams, scores, savedAt:null};
 }
+const DOCPATH=["champ2","state"];
+let cloudReady=false, muteWrite=false;
 function load(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const s = JSON.parse(raw);
-      if(s && s.teams && s.scores){ state = s; return; }
+      if(s && s.teams && s.scores){ state = s; }
     }
   }catch(e){}
-  state = defaultState();
+  if(!state) state = defaultState();
+  if(!state.live) state.live = {};
 }
+async function cloudInit(){
+  if(!window._fbReady) return;
+  const {doc,getDoc,setDoc,onSnapshot}=window._fb;
+  const ref=doc(window._db,DOCPATH[0],DOCPATH[1]);
+  try{
+    const snap=await getDoc(ref);
+    if(snap.exists()){
+      const d=snap.data();
+      if(d&&d.teams&&d.scores){ state=d; if(!state.live)state.live={}; }
+    }else{
+      await setDoc(ref,{teams:state.teams,scores:state.scores,live:{},savedAt:new Date().toISOString()});
+    }
+  }catch(e){ setCloud("err"); return; }
+  cloudReady=true; setCloud("on");
+  renderSetup(); renderMatches(); renderStandings();
+  onSnapshot(ref,snap=>{
+    if(!snap.exists())return;
+    const d=snap.data(); if(!d||!d.teams||!d.scores)return;
+    state=d; if(!state.live)state.live={};
+    muteWrite=true;
+    renderSetup(); renderMatches(); renderStandings(); updateSaveTime();
+    muteWrite=false;
+    setCloud("on");
+  },()=>setCloud("err"));
+}
+async function cloudSave(){
+  if(!cloudReady||muteWrite)return;
+  try{
+    const {doc,setDoc}=window._fb;
+    await setDoc(doc(window._db,DOCPATH[0],DOCPATH[1]),{
+      teams:state.teams,scores:state.scores,live:state.live||{},savedAt:state.savedAt
+    });
+    setCloud("on");
+  }catch(e){ setCloud("err") }
+}
+function setCloud(st){
+  const el=document.getElementById("cloudTag"); if(!el)return;
+  const m={on:["☁️ Đồng bộ cloud","#eaf7e6","#3b6d11"],err:["⚠️ Mất kết nối cloud","#fdecec","#b32626"],wait:["🔄 Đang kết nối…","#fdf1e6","#d97b29"]}[st];
+  el.textContent=m[0]; el.style.background=m[1]; el.style.color=m[2];
+}
+window.addEventListener("fbReady",cloudInit);
+setTimeout(()=>{ if(!cloudReady) setCloud("err") },9000);
 let toastTimer=null;
 function save(showToast){
   state.savedAt = new Date().toISOString();
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  cloudSave();
   updateSaveTime();
   if(showToast){
     const el=document.getElementById("savemsg");
@@ -256,7 +327,8 @@ function updateSaveTime(){
 function resetAll(){
   if(!confirm("Xóa toàn bộ tên đội, người chơi và tỉ số?")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-  state = defaultState();
+  state = defaultState(); state.live={};
+  cloudSave();
   renderSetup(); renderMatches(); renderStandings(); updateSaveTime();
   showTab("setup", document.querySelector(".tabs button[data-tab=setup]"));
 }
@@ -371,11 +443,18 @@ function renderMatches(){
           + '<div class="side r"><span class="who">'+esc(playerName(m[1],g.slots[0]))+' + '+esc(playerName(m[1],g.slots[1]))+'</span><span class="fmt">'+g.label+'</span></div>'
           + '</div>';
       });
+      const lv=(state.live||{})[id];
+      let liveHtml="";
+      if(lv&&(lv.A>0||lv.B>0)){
+        liveHtml='<div style="background:#eff6e4;border:1.5px solid #c0dd97;border-radius:10px;padding:7px 10px;margin:0 0 6px;display:flex;align-items:center;justify-content:space-between;font-size:13px">'
+          +'<span style="color:#3b6d11;font-weight:700">🔴 Đang đấu · trận '+((lv.gi||0)+1)+'</span>'
+          +'<span style="font-weight:800;color:#17201c;font-size:15px">'+lv.A+' – '+lv.B+'</span></div>';
+      }
       card.innerHTML = '<div class="match-head">'
         + '<span class="vs"><span class="badge" style="background:'+TEAM_COLORS[m[0][0]]+'">'+m[0]+'</span> <span>'+esc(subLabel(m[0]))+'</span></span>'
         + '<span class="court">LƯỢT '+r.round+' · SÂN '+(ci+1)+'</span>'
         + '<span class="vs"><span>'+esc(subLabel(m[1]))+'</span> <span class="badge" style="background:'+TEAM_COLORS[m[1][0]]+'">'+m[1]+'</span></span>'
-        + '</div>' + gamesHtml
+        + '</div>' + liveHtml + gamesHtml
         + '<div class="mres" id="r_'+id+'"></div>';
       wrap.appendChild(card);
       updateMatchUI(id, m);
@@ -502,7 +581,5 @@ renderMatches();
 renderStandings();
 updateSaveTime();
 </script>
-
-<a href="index.html" style="position:fixed;left:12px;bottom:12px;z-index:999;background:#0f2040;color:#fff;text-decoration:none;font-family:'Segoe UI',Roboto,sans-serif;font-size:13px;font-weight:700;padding:9px 15px;border-radius:22px;box-shadow:0 4px 14px rgba(0,0,0,.25);display:inline-flex;align-items:center;gap:6px;border:1.5px solid #ffd700">⬅️ Về app tính tiền</a>
 </body>
 </html>
