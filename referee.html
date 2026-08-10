@@ -514,27 +514,28 @@ function normTeams(t){
 async function saveScores(){
   if(!cloudOK){toast("⚠️ Chưa nối cloud — kết quả CHƯA được lưu!");return}
   try{
-    const{setDoc}=window._fb;
-    await setDoc(ref(),{scores:encScores(S.scores),savedAt:new Date().toISOString()},{merge:true});
+    const{updateDoc,setDoc}=window._fb;
+    const payload={scores:encScores(S.scores),savedAt:new Date().toISOString()};
+    try{ await updateDoc(ref(),payload) }catch(e2){ await setDoc(ref(),payload,{merge:true}) }
     setCloudTag("on");
   }catch(e){lastErr=(e.code||"")+": "+e.message;setCloudTag("err");toast("⚠️ Lỗi lưu: "+(e.code||e.message))}
 }
 async function pushLive(){
   if(!cloudOK||!cur)return;
   try{
-    const{setDoc}=window._fb;
+    const{updateDoc,setDoc}=window._fb;
     const lv={...(S.live||{})};
     lv[cur.id]={gi:cur.gi,A:cur.A,B:cur.B,serve:serve,court:court,ts:Date.now()};
     S.live=lv;
-    await setDoc(ref(),{live:lv},{merge:true});
+    try{ await updateDoc(ref(),{live:lv}) }catch(e2){ await setDoc(ref(),{live:lv},{merge:true}) }
   }catch(e){lastErr=(e.code||"")+": "+e.message;setCloudTag("err")}
 }
 async function clearLive(id){
   if(!cloudOK)return;
   try{
-    const{setDoc}=window._fb;
+    const{updateDoc,setDoc}=window._fb;
     const lv={...(S.live||{})};delete lv[id];S.live=lv;
-    await setDoc(ref(),{live:lv},{merge:true});
+    try{ await updateDoc(ref(),{live:lv}) }catch(e2){ await setDoc(ref(),{live:lv},{merge:true}) }
   }catch(e){}
 }
 async function retryCloud(){

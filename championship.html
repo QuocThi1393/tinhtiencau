@@ -101,6 +101,13 @@
   .score input{width:46px;padding:9px 2px;text-align:center;border:1px solid var(--line);border-radius:10px;font-size:17px;font-weight:800;-moz-appearance:textfield;background:#fff}
   .score input::-webkit-outer-spin-button,.score input::-webkit-inner-spin-button{-webkit-appearance:none}
   .score span{color:var(--muted);font-weight:800}
+  .game.gLive{background:#fff8ec}
+  .game.gLive .score input{border-color:#d97b29;background:#fff;color:#b3610f;font-weight:800;box-shadow:0 0 0 3px rgba(217,123,41,.14)}
+  .game.gLive .side .fmt::after{content:" · đang đấu";color:#d97b29;font-weight:700}
+  .game.gLocked{opacity:.6}
+  .game.gLocked .score input{background:#f4f6f2;color:var(--muted);border-color:var(--line)}
+  .livedot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#d97b29;margin-right:5px;animation:lvp 1.1s infinite}
+  @keyframes lvp{0%,100%{opacity:1}50%{opacity:.25}}
   .mres{padding:8px 14px;font-size:13px;background:#fbfcf9;color:var(--muted);border-top:1px solid var(--line)}
   .mres b{color:var(--ink)}
 
@@ -175,6 +182,7 @@ window.dispatchEvent(new Event("fbReady"));
   <div class="teamgrid" id="setup-teams"></div>
   <div class="btnrow">
     <button class="act primary" onclick="goMatches()">Xong, vào lịch đấu →</button>
+    <button class="act" style="border-color:#f0c48f;color:#b3610f" onclick="resetScoresOnly()">🧽 Xoá tỉ số test</button>
     <button class="act danger" onclick="resetAll()">Xóa toàn bộ</button>
   </div>
 </div>
@@ -311,8 +319,20 @@ async function cloudInit(){
     if(!snap.exists())return;
     const d=snap.data(); if(!d||!d.teams)return;
     state={teams:d.teams,scores:decScores(d.scores),live:d.live||{},savedAt:d.savedAt};
+    const ae=document.activeElement;
+    const typing = ae && ae.tagName==="INPUT";
     muteWrite=true;
-    renderSetup(); renderMatches(); renderStandings(); updateSaveTime();
+    if(typing){
+      // BTC đang gõ -> chỉ cập nhật BXH, hoãn vẽ lại danh sách trận
+      renderStandings(); updateSaveTime();
+      clearTimeout(window._pend);
+      window._pend=setTimeout(()=>{
+        const a2=document.activeElement;
+        if(!(a2&&a2.tagName==="INPUT")){renderSetup();renderMatches();renderStandings()}
+      },1500);
+    }else{
+      renderSetup(); renderMatches(); renderStandings(); updateSaveTime();
+    }
     muteWrite=false;
     setCloud("on");
   },()=>setCloud("err"));
@@ -323,7 +343,7 @@ async function cloudSave(){
     const {doc,setDoc}=window._fb;
     await setDoc(doc(window._db,DOCPATH[0],DOCPATH[1]),{
       teams:state.teams,scores:encScores(state.scores),live:state.live||{},savedAt:state.savedAt
-    },{merge:true});
+    });
     setCloud("on");
   }catch(e){ lastErr=(e.code||"")+": "+(e.message||""); setCloud("err") }
 }
@@ -361,13 +381,35 @@ function updateSaveTime(){
   const p = n=>String(n).padStart(2,"0");
   el.textContent = "Đã lưu lúc "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
 }
-function resetAll(){
-  if(!confirm("Xóa toàn bộ tên đội, người chơi và tỉ số?")) return;
+async function resetAll(){
+  if(!confirm("XOÁ TOÀN BỘ tên đội, người chơi và tỉ số?\n\nDữ liệu trên cloud cũng bị xoá, không khôi phục được.\n(Nếu chỉ muốn xoá tỉ số mà giữ tên đội, hãy dùng nút \"Xoá tỉ số test\")")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   state = defaultState(); state.live={};
-  cloudSave();
+  await cloudWipe();
   renderSetup(); renderMatches(); renderStandings(); updateSaveTime();
   showTab("setup", document.querySelector(".tabs button[data-tab=setup]"));
+  alert("Đã xoá sạch dữ liệu.");
+}
+async function resetScoresOnly(){
+  if(!confirm("Xoá toàn bộ TỈ SỐ (giữ nguyên tên đội và người chơi)?\n\nDùng cái này sau khi test xong.")) return;
+  ensureScores();
+  Object.keys(state.scores).forEach(id=>{ state.scores[id]=[[null,null],[null,null],[null,null]] });
+  state.live={};
+  await cloudWipe();
+  renderMatches(); renderStandings(); updateSaveTime();
+  alert("Đã xoá sạch tỉ số. Tên đội vẫn giữ nguyên.");
+}
+async function cloudWipe(){
+  state.savedAt=new Date().toISOString();
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  if(!cloudReady){ toast&&0; return }
+  try{
+    const {doc,setDoc}=window._fb;
+    await setDoc(doc(window._db,DOCPATH[0],DOCPATH[1]),{
+      teams:state.teams, scores:encScores(state.scores), live:{}, savedAt:state.savedAt
+    });
+    setCloud("on");
+  }catch(e){ lastErr=(e.code||"")+": "+(e.message||""); setCloud("err"); alert("Xoá trên máy xong nhưng CHƯA xoá được cloud.\nLý do: "+lastErr) }
 }
 
 /* ===== Sao lưu / Khôi phục file ===== */
@@ -476,14 +518,19 @@ function renderMatches(){
       const card = document.createElement("div");
       card.className = "match";
       let gamesHtml = "";
+      const lvNow=(state.live||{})[id];
       GAME_DEFS.forEach((g,gi)=>{
         const s = state.scores[id][gi];
-        gamesHtml += '<div class="game" id="g_'+id+'_'+gi+'">'
+        const fin = s[0]!==null && s[1]!==null;
+        const isLive = !fin && lvNow && (lvNow.gi||0)===gi;
+        const vA = fin ? s[0] : (isLive ? lvNow.A : (s[0]??""));
+        const vB = fin ? s[1] : (isLive ? lvNow.B : (s[1]??""));
+        gamesHtml += '<div class="game'+(isLive?' gLive':'')+(fin?' gLocked':'')+'" id="g_'+id+'_'+gi+'">'
           + '<div class="side l"><span class="who">'+esc(playerName(m[0],g.slots[0]))+' + '+esc(playerName(m[0],g.slots[1]))+'</span><span class="fmt">'+g.label+'</span></div>'
           + '<div class="score">'
-          + '<input type="number" inputmode="numeric" min="0" max="99" value="'+(s[0]??"")+'" onchange="setScore(\''+id+'\','+gi+',0,this.value)">'
+          + '<input type="number" inputmode="numeric" min="0" max="99" value="'+vA+'" onchange="setScore(\''+id+'\','+gi+',0,this.value)">'
           + '<span>–</span>'
-          + '<input type="number" inputmode="numeric" min="0" max="99" value="'+(s[1]??"")+'" onchange="setScore(\''+id+'\','+gi+',1,this.value)">'
+          + '<input type="number" inputmode="numeric" min="0" max="99" value="'+vB+'" onchange="setScore(\''+id+'\','+gi+',1,this.value)">'
           + '</div>'
           + '<div class="side r"><span class="who">'+esc(playerName(m[1],g.slots[0]))+' + '+esc(playerName(m[1],g.slots[1]))+'</span><span class="fmt">'+g.label+'</span></div>'
           + '</div>';
@@ -491,9 +538,8 @@ function renderMatches(){
       const lv=(state.live||{})[id];
       let liveHtml="";
       if(lv&&(lv.A>0||lv.B>0)){
-        liveHtml='<div style="background:#eff6e4;border:1.5px solid #c0dd97;border-radius:10px;padding:7px 10px;margin:0 0 6px;display:flex;align-items:center;justify-content:space-between;font-size:13px">'
-          +'<span style="color:#3b6d11;font-weight:700">🔴 Đang đấu · trận '+((lv.gi||0)+1)+'</span>'
-          +'<span style="font-weight:800;color:#17201c;font-size:15px">'+lv.A+' – '+lv.B+'</span></div>';
+        liveHtml='<div style="background:#fdf1e6;border:1.5px solid #f0c48f;border-radius:10px;padding:6px 10px;margin:0 0 6px;font-size:12.5px;color:#b3610f;font-weight:700">'
+          +'<span class="livedot"></span>Trọng tài đang bắt trận '+((lv.gi||0)+1)+' — điểm cập nhật trực tiếp bên dưới</div>';
       }
       card.innerHTML = '<div class="match-head">'
         + '<span class="vs"><span class="badge" style="background:'+TEAM_COLORS[m[0][0]]+'">'+m[0]+'</span> <span>'+esc(subLabel(m[0]))+'</span></span>'
