@@ -433,6 +433,35 @@ const SCHED=[
   {r:3,courts:[["A2","C1"],["B2","D2"]]}
 ];
 const DOCP=["champ2","state"];
+/* ===== Firestore không nhận mảng-trong-mảng.
+   Local giữ [[a,b],[a,b],[a,b]]; lên cloud đổi thành {"0":{a,b},...} ===== */
+function encScores(sc){
+  const out={};
+  Object.keys(sc||{}).forEach(id=>{
+    const g=sc[id]||[]; const o={};
+    for(let i=0;i<3;i++){
+      const p=g[i];
+      if(p&&p[0]!==null&&p[0]!==undefined&&p[1]!==null&&p[1]!==undefined){
+        o[String(i)]={a:Number(p[0]),b:Number(p[1])};
+      }
+    }
+    out[id]=o;
+  });
+  return out;
+}
+function decScores(obj){
+  const out={};
+  Object.keys(obj||{}).forEach(id=>{
+    const o=obj[id]||{}; const g=[[null,null],[null,null],[null,null]];
+    for(let i=0;i<3;i++){
+      const p=o[String(i)];
+      if(p&&p.a!==undefined&&p.b!==undefined){ g[i]=[Number(p.a),Number(p.b)]; }
+    }
+    out[id]=g;
+  });
+  return out;
+}
+
 let cloudOK=false, unsub=null;
 let S={scores:{},times:{},live:{}}, court=null, cur=null;
 let undoStack=[], serve="A", swapped=false, paused=false, tick=null, elapsed=0;
@@ -459,7 +488,7 @@ async function cloudPull(){
     if(snap.exists()){
       const d=snap.data();
       if(d.teams)TEAMS=normTeams(d.teams);
-      S.scores=d.scores||{}; S.live=d.live||{};
+      S.scores=decScores(d.scores); S.live=d.live||{};
     }else{
       // Chưa có dữ liệu giải -> tạo doc trống để ghi được
       await setDoc(ref(),{scores:{},live:{},savedAt:new Date().toISOString()},{merge:true});
@@ -486,7 +515,7 @@ async function saveScores(){
   if(!cloudOK){toast("⚠️ Chưa nối cloud — kết quả CHƯA được lưu!");return}
   try{
     const{setDoc}=window._fb;
-    await setDoc(ref(),{scores:S.scores,savedAt:new Date().toISOString()},{merge:true});
+    await setDoc(ref(),{scores:encScores(S.scores),savedAt:new Date().toISOString()},{merge:true});
     setCloudTag("on");
   }catch(e){lastErr=(e.code||"")+": "+e.message;setCloudTag("err");toast("⚠️ Lỗi lưu: "+(e.code||e.message))}
 }
@@ -553,7 +582,7 @@ function startWatch(){
       if(!snap.exists())return;
       const d=snap.data();
       if(d.teams)TEAMS=normTeams(d.teams);
-      S.scores=d.scores||{};S.live=d.live||{};
+      S.scores=decScores(d.scores);S.live=d.live||{};
       setCloudTag("on");
       if(document.getElementById("pgList").classList.contains("on"))renderList();
       if(document.getElementById("pgStand").classList.contains("on"))renderStand();

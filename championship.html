@@ -250,6 +250,35 @@ function defaultState(){
   return {teams, scores, savedAt:null};
 }
 const DOCPATH=["champ2","state"];
+/* ===== Firestore không nhận mảng-trong-mảng.
+   Local giữ [[a,b],[a,b],[a,b]]; lên cloud đổi thành {"0":{a,b},...} ===== */
+function encScores(sc){
+  const out={};
+  Object.keys(sc||{}).forEach(id=>{
+    const g=sc[id]||[]; const o={};
+    for(let i=0;i<3;i++){
+      const p=g[i];
+      if(p&&p[0]!==null&&p[0]!==undefined&&p[1]!==null&&p[1]!==undefined){
+        o[String(i)]={a:Number(p[0]),b:Number(p[1])};
+      }
+    }
+    out[id]=o;
+  });
+  return out;
+}
+function decScores(obj){
+  const out={};
+  Object.keys(obj||{}).forEach(id=>{
+    const o=obj[id]||{}; const g=[[null,null],[null,null],[null,null]];
+    for(let i=0;i<3;i++){
+      const p=o[String(i)];
+      if(p&&p.a!==undefined&&p.b!==undefined){ g[i]=[Number(p.a),Number(p.b)]; }
+    }
+    out[id]=g;
+  });
+  return out;
+}
+
 let cloudReady=false, muteWrite=false;
 function load(){
   try{
@@ -271,17 +300,17 @@ async function cloudInit(){
     const snap=await getDoc(ref);
     if(snap.exists()){
       const d=snap.data();
-      if(d&&d.teams&&d.scores){ state=d; if(!state.live)state.live={}; }
+      if(d&&d.teams){ state={teams:d.teams,scores:decScores(d.scores),live:d.live||{},savedAt:d.savedAt}; }
     }else{
-      await setDoc(ref,{teams:state.teams,scores:state.scores,live:{},savedAt:new Date().toISOString()});
+      await setDoc(ref,{teams:state.teams,scores:encScores(state.scores),live:{},savedAt:new Date().toISOString()});
     }
   }catch(e){ lastErr=(e.code||"")+": "+(e.message||""); setCloud("err"); return; }
   cloudReady=true; setCloud("on");
   renderSetup(); renderMatches(); renderStandings();
   onSnapshot(ref,snap=>{
     if(!snap.exists())return;
-    const d=snap.data(); if(!d||!d.teams||!d.scores)return;
-    state=d; if(!state.live)state.live={};
+    const d=snap.data(); if(!d||!d.teams)return;
+    state={teams:d.teams,scores:decScores(d.scores),live:d.live||{},savedAt:d.savedAt};
     muteWrite=true;
     renderSetup(); renderMatches(); renderStandings(); updateSaveTime();
     muteWrite=false;
@@ -293,7 +322,7 @@ async function cloudSave(){
   try{
     const {doc,setDoc}=window._fb;
     await setDoc(doc(window._db,DOCPATH[0],DOCPATH[1]),{
-      teams:state.teams,scores:state.scores,live:state.live||{},savedAt:state.savedAt
+      teams:state.teams,scores:encScores(state.scores),live:state.live||{},savedAt:state.savedAt
     },{merge:true});
     setCloud("on");
   }catch(e){ lastErr=(e.code||"")+": "+(e.message||""); setCloud("err") }
@@ -389,6 +418,13 @@ function goMatches(){
   save(true);
 }
 
+function ensureScores(){
+  SCHEDULE.forEach(r=>r.courts.forEach(m=>{
+    const id=m[0]+"_"+m[1];
+    if(!state.scores) state.scores={};
+    if(!state.scores[id]) state.scores[id]=[[null,null],[null,null],[null,null]];
+  }));
+}
 function teamName(k){ return state.teams[k].name || ("Đội "+k); }
 function playerName(subId, slot){
   const v = state.teams[subId[0]].players[subId][slot];
@@ -427,6 +463,7 @@ function setPlayer(sid,i,v){ state.teams[sid[0]].players[sid][i]=v; save(); }
 
 /* ===== TAB TRẬN ĐẤU ===== */
 function renderMatches(){
+  ensureScores();
   const wrap = document.getElementById("match-list");
   wrap.innerHTML = "";
   SCHEDULE.forEach(r=>{
@@ -535,6 +572,7 @@ function computeStats(){
 }
 function fmtDiff(d){ return (d>0?"+":"")+d; }
 function renderStandings(){
+  ensureScores();
   const {team, sub} = computeStats();
   const rows = TEAM_KEYS.map(k=>({k, ...team[k]}));
   rows.sort((a,b)=> b.w-a.w || b.d-a.d || a.k.localeCompare(b.k));
