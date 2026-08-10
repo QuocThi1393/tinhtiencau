@@ -262,6 +262,7 @@ function load(){
   if(!state) state = defaultState();
   if(!state.live) state.live = {};
 }
+let lastErr="";
 async function cloudInit(){
   if(!window._fbReady) return;
   const {doc,getDoc,setDoc,onSnapshot}=window._fb;
@@ -274,7 +275,7 @@ async function cloudInit(){
     }else{
       await setDoc(ref,{teams:state.teams,scores:state.scores,live:{},savedAt:new Date().toISOString()});
     }
-  }catch(e){ setCloud("err"); return; }
+  }catch(e){ lastErr=(e.code||"")+": "+(e.message||""); setCloud("err"); return; }
   cloudReady=true; setCloud("on");
   renderSetup(); renderMatches(); renderStandings();
   onSnapshot(ref,snap=>{
@@ -293,12 +294,19 @@ async function cloudSave(){
     const {doc,setDoc}=window._fb;
     await setDoc(doc(window._db,DOCPATH[0],DOCPATH[1]),{
       teams:state.teams,scores:state.scores,live:state.live||{},savedAt:state.savedAt
-    });
+    },{merge:true});
     setCloud("on");
-  }catch(e){ setCloud("err") }
+  }catch(e){ lastErr=(e.code||"")+": "+(e.message||""); setCloud("err") }
+}
+function retryCloud(){
+  if(lastErr){
+    alert("Chưa đồng bộ được cloud.\n\nLý do: "+lastErr+"\n\nNếu thấy 'permission-denied' → cần mở quyền Firestore cho mục champ2 (xem hướng dẫn Claude gửi).");
+  }
+  setCloud("wait"); cloudInit();
 }
 function setCloud(st){
   const el=document.getElementById("cloudTag"); if(!el)return;
+  el.style.cursor="pointer"; el.onclick=retryCloud;
   const m={on:["☁️ Đồng bộ cloud","#eaf7e6","#3b6d11"],err:["⚠️ Mất kết nối cloud","#fdecec","#b32626"],wait:["🔄 Đang kết nối…","#fdf1e6","#d97b29"]}[st];
   el.textContent=m[0]; el.style.background=m[1]; el.style.color=m[2];
 }

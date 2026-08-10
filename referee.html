@@ -236,7 +236,7 @@ window.dispatchEvent(new Event("fbReady"));
   <div class="top">
     <button class="tBack" onclick="logout()">⎋</button>
     <div class="tMid"><div class="tT" id="lsT">Sân 1</div><div class="tS">Chọn cặp đấu để bắt đầu</div></div>
-    <span class="tLive">☁ Live</span>
+    <span class="tLive" onclick="retryCloud()" style="cursor:pointer">☁ Live</span>
   </div>
   <div class="body" id="lsBody"></div>
   <div class="nav">
@@ -251,7 +251,7 @@ window.dispatchEvent(new Event("fbReady"));
   <div class="top">
     <button class="tBack" onclick="backToList()">‹</button>
     <div class="tMid"><div class="tT">Tính điểm</div><div class="tS" id="scS">Lượt 1 · Sân 1</div></div>
-    <span class="tLive">☁ Live</span>
+    <span class="tLive" onclick="retryCloud()" style="cursor:pointer">☁ Live</span>
   </div>
   <div class="body">
     <div class="metaRow">
@@ -308,7 +308,7 @@ window.dispatchEvent(new Event("fbReady"));
   <div class="top">
     <button class="tBack" onclick="backFromTab()">‹</button>
     <div class="tMid"><div class="tT">Bảng xếp hạng</div><div class="tS">Cập nhật trực tiếp</div></div>
-    <span class="tLive">☁ Live</span>
+    <span class="tLive" onclick="retryCloud()" style="cursor:pointer">☁ Live</span>
   </div>
   <div class="body">
     <div class="card">
@@ -440,18 +440,35 @@ let opts={sound:true,wake:false,vib:true}, retireWin=null;
 
 function mid(a,b){return a+"_"+b}
 function ref(){const{doc}=window._fb;return doc(window._db,DOCP[0],DOCP[1])}
+let lastErr="";
+function waitFb(ms){
+  return new Promise(res=>{
+    if(window._fbReady)return res(true);
+    let done=false;
+    const ok=()=>{if(!done){done=true;res(true)}};
+    window.addEventListener("fbReady",ok,{once:true});
+    setTimeout(()=>{if(!done){done=true;res(!!window._fbReady)}},ms);
+  });
+}
 async function cloudPull(){
-  if(!window._fbReady)return false;
+  const ready=await waitFb(8000);
+  if(!ready){lastErr="Không tải được Firebase (mạng chặn hoặc offline)";setCloudTag("err");return false}
   try{
-    const{getDoc}=window._fb;
+    const{getDoc,setDoc}=window._fb;
     const snap=await getDoc(ref());
     if(snap.exists()){
       const d=snap.data();
       if(d.teams)TEAMS=normTeams(d.teams);
       S.scores=d.scores||{}; S.live=d.live||{};
+    }else{
+      // Chưa có dữ liệu giải -> tạo doc trống để ghi được
+      await setDoc(ref(),{scores:{},live:{},savedAt:new Date().toISOString()},{merge:true});
     }
-    cloudOK=true;setCloudTag("on");return true;
-  }catch(e){setCloudTag("err");return false}
+    cloudOK=true;lastErr="";setCloudTag("on");return true;
+  }catch(e){
+    lastErr=(e&&e.code?e.code+": ":"")+(e&&e.message?e.message:"lỗi không rõ");
+    setCloudTag("err");return false;
+  }
 }
 function normTeams(t){
   const out={};
@@ -466,30 +483,36 @@ function normTeams(t){
   return out;
 }
 async function saveScores(){
-  if(!cloudOK)return;
+  if(!cloudOK){toast("⚠️ Chưa nối cloud — kết quả CHƯA được lưu!");return}
   try{
-    const{updateDoc}=window._fb;
-    await updateDoc(ref(),{scores:S.scores,savedAt:new Date().toISOString()});
+    const{setDoc}=window._fb;
+    await setDoc(ref(),{scores:S.scores,savedAt:new Date().toISOString()},{merge:true});
     setCloudTag("on");
-  }catch(e){setCloudTag("err");toast("⚠️ Lỗi lưu cloud")}
+  }catch(e){lastErr=(e.code||"")+": "+e.message;setCloudTag("err");toast("⚠️ Lỗi lưu: "+(e.code||e.message))}
 }
 async function pushLive(){
   if(!cloudOK||!cur)return;
   try{
-    const{updateDoc}=window._fb;
+    const{setDoc}=window._fb;
     const lv={...(S.live||{})};
     lv[cur.id]={gi:cur.gi,A:cur.A,B:cur.B,serve:serve,court:court,ts:Date.now()};
     S.live=lv;
-    await updateDoc(ref(),{live:lv});
-  }catch(e){}
+    await setDoc(ref(),{live:lv},{merge:true});
+  }catch(e){lastErr=(e.code||"")+": "+e.message;setCloudTag("err")}
 }
 async function clearLive(id){
   if(!cloudOK)return;
   try{
-    const{updateDoc}=window._fb;
+    const{setDoc}=window._fb;
     const lv={...(S.live||{})};delete lv[id];S.live=lv;
-    await updateDoc(ref(),{live:lv});
+    await setDoc(ref(),{live:lv},{merge:true});
   }catch(e){}
+}
+async function retryCloud(){
+  toast("🔄 Đang thử kết nối lại...");
+  const ok=await cloudPull();
+  if(ok){startWatch();renderList();toast("✅ Đã kết nối cloud!")}
+  else alert("Chưa kết nối được cloud.\n\nLý do: "+(lastErr||"không rõ")+"\n\nNếu thấy chữ 'permission-denied' → ban tổ chức cần mở quyền Firestore cho mục champ2.");
 }
 function setCloudTag(st){
   const m={on:["☁ Live","rgba(200,230,76,.18)","#c8e64c","rgba(200,230,76,.5)"],err:["⚠ Offline","rgba(255,140,140,.2)","#ffd0d0","rgba(255,140,140,.5)"]}[st];
