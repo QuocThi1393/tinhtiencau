@@ -204,6 +204,57 @@
     .srow{grid-template-columns:1fr 44px 44px 64px;padding:11px 12px}
     .tabs button{font-size:13px;padding:11px 4px}
   }
+
+  /* ===== XUẤT KẾT QUẢ — bản in nền trắng ===== */
+  .expbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+  .expbtns button{padding:12px 8px;border:1px solid var(--line);border-radius:12px;background:transparent;font-family:var(--ui);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:.15s}
+  .expbtns button:hover{background:var(--surface-2);color:var(--ink)}
+  .expbtns button.all{background:var(--lime);border-color:var(--lime);color:var(--on-lime);font-weight:700}
+  .expone{width:100%;margin-top:14px;padding:14px;border:none;border-radius:999px;background:var(--lime);color:var(--on-lime);font-family:var(--ui);font-size:14px;font-weight:700;cursor:pointer}
+
+  .shOv{position:fixed;inset:0;background:rgba(4,6,4,.82);z-index:90;display:none;overflow-y:auto;padding:14px 10px 90px}
+  .shOv.on{display:block}
+  .shBar{position:fixed;left:0;right:0;bottom:0;background:#101210;border-top:1px solid rgba(255,255,255,.14);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;z-index:95;justify-content:center}
+  .shBar button{flex:1;max-width:190px;height:46px;border-radius:999px;font-family:var(--ui);font-size:14px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.2);background:transparent;color:#e8ece0}
+  .shBar button.pri{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
+
+  /* tờ giấy trắng */
+  #sheet{background:#fff;color:#1a1a18;max-width:760px;margin:0 auto;padding:22px 20px;border-radius:6px;font-family:var(--ui)}
+  #sheet .sh-h{text-align:center;border-bottom:2px solid #1a1a18;padding-bottom:11px;margin-bottom:14px}
+  #sheet .sh-k{font-size:10px;letter-spacing:.18em;color:#6b6b64;font-weight:700}
+  #sheet .sh-t{font-size:23px;font-weight:800;margin-top:6px;color:#1a1a18}
+  #sheet .sh-s{font-size:11.5px;color:#6b6b64;margin-top:4px}
+  #sheet .sh-rd{font-size:11px;font-weight:800;letter-spacing:.14em;color:#3d3d38;text-transform:uppercase;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid #d8d8d2}
+  #sheet .sh-m{border:1px solid #d8d8d2;border-radius:6px;margin-bottom:9px;overflow:hidden;page-break-inside:avoid}
+  #sheet .sh-mh{background:#f3f3ef;padding:7px 10px;display:flex;justify-content:space-between;gap:8px;font-size:11.5px;font-weight:700;color:#3d3d38}
+  #sheet .sh-mb{padding:4px 10px 8px}
+  #sheet .sh-g{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #eeeeea}
+  #sheet .sh-g:last-child{border-bottom:none}
+  #sheet .sh-p{flex:1;font-size:12px;color:#1a1a18;min-width:0}
+  #sheet .sh-p.r{text-align:right}
+  #sheet .sh-p b{font-weight:800}
+  #sheet .sh-sc{font-size:14px;font-weight:800;min-width:66px;text-align:center;color:#1a1a18;font-variant-numeric:tabular-nums}
+  #sheet .sh-gl{font-size:9.5px;color:#8a8a82;display:block;margin-bottom:1px;letter-spacing:.06em;text-transform:uppercase}
+  #sheet .sh-res{background:#f3f3ef;border-radius:4px;margin-top:8px;padding:6px 9px;font-size:11.5px;color:#3d3d38}
+  #sheet .sh-res b{font-weight:800;color:#1a1a18}
+  #sheet .sh-empty{padding:10px;font-size:11.5px;color:#8a8a82;font-style:italic}
+  #sheet table.sh-tb{width:100%;border-collapse:collapse;table-layout:fixed}
+  #sheet table.sh-tb th{font-size:9.5px;color:#6b6b64;font-weight:700;padding:6px 3px;text-transform:uppercase;letter-spacing:.1em;border-bottom:1.5px solid #1a1a18}
+  #sheet table.sh-tb td{padding:9px 3px;font-size:12.5px;text-align:center;border-bottom:1px solid #eeeeea;color:#1a1a18}
+  #sheet table.sh-tb td.l{text-align:left;font-weight:700}
+  #sheet table.sh-tb tr.lead td{background:#f6f6f2;font-weight:800}
+  #sheet .sh-sub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  #sheet .sh-sb{border:1px solid #e4e4de;border-radius:5px;padding:6px 9px;display:flex;justify-content:space-between;font-size:11.5px;color:#1a1a18}
+  #sheet .sh-lb{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6b6b64;font-weight:700;margin:16px 0 7px}
+  #sheet .sh-f{display:flex;justify-content:space-between;gap:10px;font-size:9.5px;color:#8a8a82;margin-top:14px;border-top:1px solid #eeeeea;padding-top:8px}
+  #sheet .sh-note{font-size:11px;color:#6b6b64;margin:0 0 10px;text-align:center}
+
+  @media print{
+    body>*{display:none !important}
+    .shOv{display:block !important;position:static !important;background:#fff !important;padding:0 !important;overflow:visible !important}
+    .shBar{display:none !important}
+    #sheet{max-width:none;padding:0;border-radius:0}
+  }
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -221,6 +272,7 @@ window._fb={doc,getDoc,setDoc,onSnapshot};
 window._fbReady=true;
 window.dispatchEvent(new Event("fbReady"));
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -292,6 +344,17 @@ window.dispatchEvent(new Event("fbReady"));
     </div>
   </div>
 
+  <div class="card">
+    <h2 style="font-family:var(--disp);font-weight:500;font-size:20px;margin:0 0 4px">Xuất kết quả</h2>
+    <p class="hint" style="margin:0">Bản in nền trắng, gửi Zalo hoặc in ra đều được.</p>
+    <div class="expbtns">
+      <button onclick="exportRound(1)">Lượt 1</button>
+      <button onclick="exportRound(2)">Lượt 2</button>
+      <button onclick="exportRound(3)">Lượt 3</button>
+      <button class="all" onclick="exportAllRounds()">Cả 3 lượt</button>
+    </div>
+  </div>
+
   <div id="match-list"></div>
 </div>
 
@@ -310,10 +373,20 @@ window.dispatchEvent(new Event("fbReady"));
       <div id="sub-body"></div>
     </div>
   </div>
+  <button class="expone" onclick="exportStandings()">Xuất bảng xếp hạng</button>
 </div>
 
 </main>
 <div class="savemsg" id="savemsg">Đã lưu ✓</div>
+
+<div class="shOv" id="shOv">
+  <div id="sheet"></div>
+</div>
+<div class="shBar" id="shBar" style="display:none">
+  <button onclick="closeSheet()">Đóng</button>
+  <button onclick="printSheet()">In / lưu PDF</button>
+  <button class="pri" onclick="saveSheetPng()">Lưu ảnh PNG</button>
+</div>
 
 <script>
 const TEAM_KEYS = ["A","B","C","D"];
@@ -472,7 +545,17 @@ function updateSaveTime(){
   const p = n=>String(n).padStart(2,"0");
   el.textContent = "Đã lưu lúc "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
 }
+/* ===== Khoá bảo vệ cho thao tác xoá ===== */
+function hs(s){if(!s)return"";let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(36)}
+const WIPE_HASH="8arpj5"; // mật khẩu lưu dạng mã, xem mã nguồn không đọc ra được
+function askWipePass(what){
+  const p = prompt("🔒 Nhập mật khẩu để " + what + ":");
+  if(p===null) return false;
+  if(hs(String(p).trim()) !== WIPE_HASH){ alert("Sai mật khẩu — không xoá gì cả."); return false; }
+  return true;
+}
 async function resetAll(){
+  if(!askWipePass("xoá TOÀN BỘ dữ liệu")) return;
   if(!confirm("XOÁ TOÀN BỘ tên đội, người chơi và tỉ số?\n\nDữ liệu trên cloud cũng bị xoá, không khôi phục được.\n(Nếu chỉ muốn xoá tỉ số mà giữ tên đội, hãy dùng nút \"Xoá tỉ số test\")")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   state = defaultState(); state.live={};
@@ -482,6 +565,7 @@ async function resetAll(){
   alert("Đã xoá sạch dữ liệu.");
 }
 async function resetScoresOnly(){
+  if(!askWipePass("xoá tỉ số")) return;
   if(!confirm("Xoá toàn bộ TỈ SỐ (giữ nguyên tên đội và người chơi)?\n\nDùng cái này sau khi test xong.")) return;
   ensureScores();
   Object.keys(state.scores).forEach(id=>{ state.scores[id]=[[null,null],[null,null],[null,null]] });
@@ -758,6 +842,118 @@ function toggleDetail(){
   const b = document.getElementById("detailbtn");
   d.classList.toggle("show");
   b.classList.toggle("open");
+}
+
+/* ===== XUẤT KẾT QUẢ (bản in nền trắng) ===== */
+function shDate(){
+  const d=new Date(), p=n=>String(n).padStart(2,"0");
+  return p(d.getDate())+"/"+p(d.getMonth()+1)+" "+p(d.getHours())+":"+p(d.getMinutes());
+}
+function shHead(title, sub){
+  return '<div class="sh-h"><div class="sh-k">PHT BADMINTON CLUB · CHAMPIONSHIP II</div>'
+    + '<div class="sh-t">'+esc(title)+'</div>'
+    + '<div class="sh-s">'+esc(sub)+'</div></div>';
+}
+function shFoot(){
+  return '<div class="sh-f"><span>Phóng Khoáng · Hừng Hực · Thăng Hoa</span><span>Xuất '+shDate()+'</span></div>';
+}
+function shMatch(a, b, courtNo){
+  const id = a+"_"+b, sc = state.scores[id] || [[null,null],[null,null],[null,null]];
+  let w0=0, w1=0, played=0, rows="";
+  GAME_DEFS.forEach((g,gi)=>{
+    const s = sc[gi], win = gameWinner(s);
+    if(win===0) w0++; else if(win===1) w1++;
+    if(s[0]!=null && s[1]!=null) played++;
+    const pa = g.slots.map(i=>playerName(a,i)).join(" / ");
+    const pb = g.slots.map(i=>playerName(b,i)).join(" / ");
+    const scTxt = (s[0]!=null && s[1]!=null) ? (s[0]+" – "+s[1]) : "— – —";
+    rows += '<div class="sh-g">'
+      + '<span class="sh-p"><span class="sh-gl">Trận '+(gi+1)+' · '+esc(g.label)+'</span>'
+      + (win===0?'<b>'+esc(pa)+'</b>':esc(pa))+'</span>'
+      + '<span class="sh-sc">'+scTxt+'</span>'
+      + '<span class="sh-p r">'+(win===1?'<b>'+esc(pb)+'</b>':esc(pb))+'</span></div>';
+  });
+  let res;
+  if(played===0) res = '<div class="sh-empty">Chưa có kết quả</div>';
+  else {
+    const winner = w0>w1 ? subLabel(a) : w1>w0 ? subLabel(b) : null;
+    res = '<div class="sh-mb">'+rows+'<div class="sh-res">Kết quả: '
+      + (winner ? '<b>'+esc(winner)+'</b> thắng '+Math.max(w0,w1)+' – '+Math.min(w0,w1)
+                : 'hoà <b>'+w0+' – '+w1+'</b>')
+      + (played<3 ? ' <span style="color:#8a8a82">(còn '+(3-played)+' trận chưa đánh)</span>' : '')
+      + '</div></div>';
+  }
+  return '<div class="sh-m"><div class="sh-mh"><span>Sân '+courtNo+'</span>'
+    + '<span>'+esc(a)+' '+esc(teamName(a[0]))+' &nbsp;vs&nbsp; '+esc(teamName(b[0]))+' '+esc(b)+'</span></div>'
+    + (played===0 ? res : res) + '</div>';
+}
+function shRoundBody(roundNo){
+  const r = SCHEDULE.find(x=>x.round===roundNo);
+  if(!r) return "";
+  return r.courts.map((m,i)=>shMatch(m[0],m[1],i+1)).join("");
+}
+function exportRound(n){
+  openSheet(shHead("Kết quả lượt "+n, "19 · 09 · 2026 · Sân PNT") + shRoundBody(n) + shFoot());
+}
+function exportAllRounds(){
+  let html = shHead("Kết quả toàn giải", "19 · 09 · 2026 · Sân PNT");
+  SCHEDULE.forEach(r=>{
+    html += '<div class="sh-rd">Lượt '+r.round+'</div>' + shRoundBody(r.round);
+  });
+  openSheet(html + shFoot());
+}
+function exportStandings(){
+  const {team, sub} = computeStats();
+  const rows = TEAM_KEYS.map(k=>({k, ...team[k]}));
+  rows.sort((a,b)=> b.w-a.w || b.d-a.d || a.k.localeCompare(b.k));
+  let done=0, total=0;
+  SCHEDULE.forEach(r=>r.courts.forEach(m=>{
+    total+=3;
+    (state.scores[m[0]+"_"+m[1]]||[]).forEach(s=>{ if(s[0]!=null&&s[1]!=null) done++; });
+  }));
+  let html = shHead("Bảng xếp hạng", "Sau "+done+" / "+total+" trận · 19 · 09 · 2026");
+  html += '<table class="sh-tb"><thead><tr><th style="width:30px">#</th><th style="text-align:left">Đội</th>'
+    + '<th style="width:52px">Thắng</th><th style="width:46px">Thua</th><th style="width:54px">Hiệu số</th></tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    html += '<tr'+(i===0&&r.w>0?' class="lead"':'')+'><td>'+(i+1)+'</td>'
+      + '<td class="l">'+esc(teamName(r.k))+' ('+r.k+')</td>'
+      + '<td>'+r.w+'</td><td>'+r.l+'</td><td>'+(r.w+r.l?fmtDiff(r.d):"–")+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  const ids = Object.keys(sub).sort();
+  if(ids.length){
+    html += '<div class="sh-lb">Chi tiết theo nhóm nhỏ</div><div class="sh-sub">';
+    ids.forEach(s=>{
+      html += '<div class="sh-sb"><span><b>'+esc(s)+'</b> '+esc(teamName(s[0]))+'</span>'
+        + '<span>'+sub[s].w+'–'+sub[s].l+' · '+fmtDiff(sub[s].d)+'</span></div>';
+    });
+    html += '</div>';
+  }
+  openSheet(html + shFoot());
+}
+function openSheet(html){
+  document.getElementById("sheet").innerHTML = html;
+  document.getElementById("shOv").classList.add("on");
+  document.getElementById("shBar").style.display="flex";
+  document.body.style.overflow = "hidden";
+  window.scrollTo(0,0);
+}
+function closeSheet(){
+  document.getElementById("shOv").classList.remove("on");
+  document.getElementById("shBar").style.display="none";
+  document.body.style.overflow = "";
+}
+function printSheet(){ window.print(); }
+function saveSheetPng(){
+  const el = document.getElementById("sheet");
+  if(typeof html2canvas !== "function"){ alert("Chưa tải được thư viện ảnh. Kiểm tra mạng rồi thử lại, hoặc dùng nút In."); return; }
+  html2canvas(el, {backgroundColor:"#ffffff", scale:2, logging:false, useCORS:true}).then(cv=>{
+    const a = document.createElement("a");
+    a.href = cv.toDataURL("image/png");
+    const t = (el.querySelector(".sh-t")||{}).textContent || "ket-qua";
+    a.download = "PHT-" + t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").replace(/[^a-zA-Z0-9]+/g,"-") + ".png";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }).catch(()=>alert("Lỗi khi tạo ảnh. Bạn thử nút In / lưu PDF nhé."));
 }
 
 load();
